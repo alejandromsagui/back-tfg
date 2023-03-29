@@ -1,11 +1,16 @@
-const { mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-var userSchema = mongoose.Schema({
-    nickname: {type: String},
-    email: {type: String},
-    password: {type: String},
-    number_namekoins: {type: Int8Array},
-    number_transactions: {type: Int8Array}
-})
+const userSchema = new mongoose.Schema({
+    nickname: { type: String },
+    email: { type: String },
+    password: { type: String },
+    number_namekoins: { type: Number },
+    number_transactions: { type: Number }
+}, {
+    timestamps: true
 
-const User = mongoose.model('users', userSchema);
+});
+
+const User = mongoose.model('Users', userSchema);
+
+module.exports = User;
