@@ -9,7 +9,6 @@ var videogameSchema = new mongoose.Schema({
     timestamps: true
 })
 
-export default videogame;
 const Videogame = mongoose.model('Videogames', videogameSchema);
 
 module.exports = Videogame;
