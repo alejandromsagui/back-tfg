@@ -1,5 +1,6 @@
 const express = require('express');
 const userRouter = require('./routes/userRouter');
+const videogameRouter = require('./routes/videogameRouter');
 const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -25,4 +26,4 @@ app.use(cors({
 
 //Rutas
 app.use(userRouter);
-
+app.use(videogameRouter);

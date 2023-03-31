@@ -22,7 +22,7 @@ const newVideogame = async (req, res) => {
         const videogame = ({
             name: req.body.name,
             cover: req.body.cover,
-            description: req.body.descripcion,
+            description: req.body.description,
             genre: req.body.genre
         })
         const videogameDB = await Videogame.create(videogame);
@@ -44,7 +44,7 @@ const newVideogame = async (req, res) => {
 const updateVideogame = async (req, res) => {
     try {
         const id = req.params.id;
-        const update = {}
+        const update = {name: req.body.name, cover:req.body.cover, description:req.body.description, genre:req.body.genre}
         const videogame = await Videogame.findById(id);
 
         if (!videogame) {
