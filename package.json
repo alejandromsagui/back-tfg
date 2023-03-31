@@ -19,9 +19,13 @@
   },
   "homepage": "https://github.com/alejandromsagui/back-tfg#readme",
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mongoose": "^7.0.3",
-    "nodemon": "^2.0.21"
+    "nodemon": "^2.0.21",
+    "yarn": "^1.22.19"
   }
 }
