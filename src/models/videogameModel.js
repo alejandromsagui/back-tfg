@@ -1,8 +1,8 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 var videogameSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    cover: { type: String, required: true },
+    cover: { type: String },
     description: { type: String, required: true },
     genre: { type: String, required: true }
 }, {
