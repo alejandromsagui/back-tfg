@@ -17,35 +17,6 @@ const getUsers = async (req, res) => {
     }
 }
 
-const newUser = async (req, res) => {
-
-    const hash = bcrypt.hashSync(req.body.password, 10);
-
-    try {
-
-        const user = ({
-            nickname: req.body.nickname,
-            email: req.body.email,
-            password: hash,
-            number_namekoins: 0,
-            number_transactions: 0
-        });
-
-        const userDB = await User.create(user);
-
-        return res.status(200).json({
-            message: 'El usuario se ha creado correctamente',
-            userDB
-        })
-
-    } catch (err) {
-        return res.status(500).json({
-            message: 'Error al crear el usuario',
-            err
-        })
-    }
-}
-
 const updateUser = async (req, res) => {
     try {
         const id = req.params.id;
@@ -123,4 +94,4 @@ const updatePassword = async (req, res) => {
 }
 
 
-module.exports = { getUsers, newUser, updateUser, deleteUser, updatePassword }
+module.exports = { getUsers, updateUser, deleteUser, updatePassword }
