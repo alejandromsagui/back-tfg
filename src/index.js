@@ -4,6 +4,7 @@ const videogameRouter = require('./routes/videogameRouter');
 const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const authRouter = require('./routes/auth');
 const app = express();
 const port = 3000;
 
@@ -27,3 +28,4 @@ app.use(cors({
 //Rutas
 app.use(userRouter);
 app.use(videogameRouter);
+app.use(authRouter);
