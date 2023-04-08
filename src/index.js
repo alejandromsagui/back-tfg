@@ -5,8 +5,10 @@ const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth');
+const validateToken = require('./middlewares/validate-token')
 const app = express();
 const port = 3000;
+
 
 //Servidor en escucha
 app.listen(port, () => {
