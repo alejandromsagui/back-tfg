@@ -46,7 +46,7 @@ const login = async(req, res) => {
         nickname: user.nickname
     }, process.env.JWT_SECRET);
 
-    res.header('auth-token', token).json({
+    res.header('token', token).json({
         error: null,
         data: {token}
     })
