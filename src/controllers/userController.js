@@ -115,5 +115,28 @@ const getNickname = async (req, res) => {
     }
 }
 
+const getEmail = async (req, res) => {
+    try {
+        const email = req.params.email;
+        const user = await User.findOne({email: email})
 
-module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname }
+        if (!user) {
+            return res.status(404).send({
+                message: 'El email no se ha encontrado'
+            })
+        }
+
+        return res.status(200).send({
+            message: 'El email existe'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al encontrar el email',
+            error
+        });
+    }
+}
+
+
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail }
