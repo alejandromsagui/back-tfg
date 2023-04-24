@@ -93,5 +93,27 @@ const updatePassword = async (req, res) => {
     }
 }
 
+const getNickname = async (req, res) => {
+    try {
+        const username = req.params.nickname;
+        const user = await User.findOne({nickname: username})
 
-module.exports = { getUsers, updateUser, deleteUser, updatePassword }
+        if (!user) {
+            return res.status(404).send({
+                message: 'El usuario no ha sido encontrado'
+            })
+        }
+
+        return res.status(200).send({
+            message: 'El usuario existe'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al encontrar al usuario',
+            error
+        });
+    }
+}
+
+
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname }
