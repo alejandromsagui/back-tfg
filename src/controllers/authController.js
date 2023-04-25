@@ -2,7 +2,7 @@ const User = require('../models/usuarioModel')
 const userModel = require ('../models/usuarioModel');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const transporter = require("../services/mailer")
 require('dotenv').config({ path: '.env' });
 
 const newUser = async (req, res) => {
@@ -54,7 +54,17 @@ const login = async(req, res) => {
 }
 
 const recoveryPassword = async (req, res) => {
-
+    try {
+         await transporter.sendMail({
+            from: '"NamekiansGames - Contraseña olvidada 👻" <namekiansgames@gmail.com>',
+            to: 'alex.maeso19@gmail.com', 
+            subject: "NamekiansGames - Correo de recuperación de contraseña ✔",
+            text: "Pulsa en este enlace para recuperar tu contraseña:",
+            // html: "<b>Hello world?</b>",
+          });
+    } catch (error) {
+        
+    }
 }
 
 module.exports = { newUser, login, recoveryPassword }
