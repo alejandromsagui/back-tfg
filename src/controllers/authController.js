@@ -2,6 +2,7 @@ const User = require('../models/usuarioModel')
 const userModel = require ('../models/usuarioModel');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 require('dotenv').config({ path: '.env' });
 
 const newUser = async (req, res) => {
@@ -52,4 +53,8 @@ const login = async(req, res) => {
     })
 }
 
-module.exports = { newUser, login }
+const recoveryPassword = async (req, res) => {
+
+}
+
+module.exports = { newUser, login, recoveryPassword }
