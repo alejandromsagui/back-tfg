@@ -102,4 +102,14 @@ const recoveryPassword = async (req, res) => {
     }
 }
 
-module.exports = { newUser, login, recoveryPassword }
+const decodeToken = (req, res) => {
+    const token = req.header('token')
+    try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
+        res.status(200).json({ nickname: decodedToken.nickname })
+    } catch (error) {
+        res.status(500).json({ message: 'Error al decodificar el token' })
+    }
+}
+
+module.exports = { newUser, login, recoveryPassword, decodeToken}
