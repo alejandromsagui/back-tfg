@@ -1,7 +1,7 @@
-const User = require('../models/usuarioModel')
 const userModel = require ('../models/usuarioModel');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const transporter = require("../services/mailer");
 require('dotenv').config({ path: '.env' });
 
 const newUser = async (req, res) => {
@@ -18,7 +18,7 @@ const newUser = async (req, res) => {
             number_transactions: 0
         });
 
-        const userDB = await User.create(user);
+        const userDB = await userModel.create(user);
 
         return res.status(200).json({
             message: 'El usuario se ha creado correctamente',
@@ -35,7 +35,13 @@ const newUser = async (req, res) => {
 
 const login = async(req, res) => {
 
-    const user = await userModel.findOne({nickname: req.body.nickname})
+    const user = await userModel.findOne({
+        $or: [
+            { nickname: req.body.nickname },
+            { email: req.body.email }
+        ]
+    });
+
     if(!user) return res.status(400).json({ error: 'El usuario no es válido'})
 
     const validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -52,18 +58,48 @@ const login = async(req, res) => {
     })
 }
 
-// const recoveryPassword = async (req, res) => {
-//     try {
-//          await transporter.sendMail({
-//             from: '"NamekiansGames - Contraseña olvidada 👻" <namekiansgames@gmail.com>',
-//             to: 'alex.maeso19@gmail.com', 
-//             subject: "NamekiansGames - Correo de recuperación de contraseña ✔",
-//             text: "Pulsa en este enlace para recuperar tu contraseña:",
-//             // html: "<b>Hello world?</b>",
-//           });
-//     } catch (error) {
-        
-//     }
-// }
 
-module.exports = { newUser, login }
+const recoveryPassword = async (req, res) => {
+
+    try {
+        const user = await userModel.findOne({
+            $or: [
+                { nickname: req.body.nickname },
+                { email: req.body.email }
+            ]
+        })
+
+        console.log('Datos de nickname: '+ user.email);
+        console.log('Datos de email: '+ user.email);
+
+        if (user) {
+
+            res.status(200).send({
+                message: 'Email o nombre de usuario correcto'
+            })
+            transporter.sendMail({
+                from: '"Correo de recuperación de contraseña 👻" <namekiansgames@gmail.com>',
+                to: user.email,
+                subject: "NamekiansGames - Correo de recuperación de contraseña ✔",
+                text: "Pulsa en este enlace para recuperar tu contraseña:",
+                // html: "<b>Hello world?</b>",
+            });
+
+        } else {
+            res.status(404).send({
+                message: 'Email o nombre de usuario no encontrado'
+            })
+        }
+
+        
+        
+
+    } catch (error) {
+        if (error) {
+            console.log(error);
+            res.status(500).send('Error al enviar el correo electrónico');
+        }
+    }
+}
+
+module.exports = { newUser, login, recoveryPassword }

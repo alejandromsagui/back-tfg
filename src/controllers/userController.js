@@ -1,5 +1,7 @@
 const User = require("../models/usuarioModel");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require('dotenv').config({ path: '.env' });
 
 const getUsers = async (req, res) => {
     try {
@@ -137,6 +139,7 @@ const getEmail = async (req, res) => {
         });
     }
 }
+
 
 
 module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail }
