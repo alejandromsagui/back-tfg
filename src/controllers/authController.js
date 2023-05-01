@@ -71,11 +71,15 @@ const recoveryPassword = async (req, res) => {
             ]
         })
 
+        console.log('Nombre de usuario: '+user.nickname);
+        console.log('Correo: '+user.email);
+
         if (user) {
 
             res.status(200).send({
                 message: 'Email o nombre de usuario correcto',
-                code: code
+                code: code,
+                nickname: user.nickname || ''
             })
             transporter.sendMail({
                 from: 'NamekiansGames  <namekiansgames@gmail.com>',
