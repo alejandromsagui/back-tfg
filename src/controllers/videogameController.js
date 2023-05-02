@@ -1,4 +1,6 @@
 const Videogame = require('../models/videogameModel');
+const multer = require('multer');
+const uploadImage = multer({dest: 'services/images/videogames'})
 
 const getVideogames = async (req, res) => {
     try {
@@ -90,4 +92,26 @@ const deleteVideogame = async (req, res) => {
     }
 }
 
-module.exports = { getVideogames, newVideogame, updateVideogame, deleteVideogame }
+const uploadVideogameImage = (req, res) => {
+    // Utilizar el middleware 'upload' y el nombre del campo correspondiente ('image' en este ejemplo)
+    uploadImage.single('image')(req, res, err => {
+        if (err) {
+            return res.status(400).send({ message: 'Error al subir la imagen', error: err });
+        } else if (!['image/jpeg', 'image/png'].includes(req.file.mimetype)) {
+            return res.status(400).send({ message: 'Formato de imagen inválido. Solo se permiten imágenes JPEG y PNG.' });
+        } else {
+            // La imagen se ha subido correctamente, en 'req.file' encontrarás toda la información que necesitas
+            // para guardar la URL de la imagen en la base de datos o realizar cualquier otra acción.
+            const originalName = req.file.originalname;
+            const storagePath = req.file.path;
+            const url = req.file.location; // En este caso se está utilizando AWS S3 como storage
+
+            // Aquí puedes realizar todas las operaciones que necesites con los datos de la imagen
+            // Por ejemplo, guardar la URL en la base de datos del videojuego correspondiente
+
+            return res.status(200).send({ message: 'Imagen subida correctamente', image: { originalName, storagePath, url } });
+        }
+    });
+}
+
+module.exports = { getVideogames, newVideogame, updateVideogame, deleteVideogame, uploadVideogameImage }
