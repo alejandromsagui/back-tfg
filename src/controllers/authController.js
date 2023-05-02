@@ -90,7 +90,7 @@ const recoveryPassword = async (req, res) => {
 
         } else {
             res.status(404).send({
-                message: 'Email o nombre de usuario no encontrado'
+                message: 'Email o nombre de usuario correcto'
             })
         }
     } catch (error) {
