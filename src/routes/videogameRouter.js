@@ -6,7 +6,7 @@ videogameRouter.get('/videogames', videogameController.getVideogames);
 videogameRouter.post('/newVideogame', videogameController.newVideogame);
 videogameRouter.put('/updateVideogame/:id', videogameController.updateVideogame);
 videogameRouter.delete('/deleteVideogame/:id', videogameController.deleteVideogame);
-videogameRouter.post('/uploadVideogameImage', videogameController.uploadVideogameImage);
+// videogameRouter.post('/uploadVideogameImage', videogameController.uploadVideogameImage);
 
 
 module.exports = videogameRouter
