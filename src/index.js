@@ -5,11 +5,12 @@ const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth');
-// const validateToken = require('./middlewares')
 const app = express();
 const port = process.env.PORT || 3000;
-const multerMid = require('./middlewares/multer')
+const { multerMid } = require('./middlewares/multer')
+const {reduceImageSize} = require('./middlewares/multer')
 const uploadImage = require('./helpers/upload')
+const errorHandler = require('./middlewares/errorHandler')
 
 //Servidor en escucha
 app.listen(port, () => {
@@ -24,6 +25,8 @@ app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
 //Multer
 app.use(multerMid.single('image'))
+app.use(reduceImageSize)
+app.use(errorHandler)
 //CORS
 app.use(cors({
     origin: true,
