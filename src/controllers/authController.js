@@ -50,8 +50,9 @@ const login = async (req, res) => {
 
 
     const token = jwt.sign({
-        nickname: user.nickname
-    }, process.env.JWT_SECRET);
+        nickname: user.nickname,
+        email: user.email
+    }, process.env.JWT_SECRET, {expiresIn: '1h'});
 
     res.header('token', token).json({
         error: null,
@@ -104,7 +105,7 @@ const decodeToken = (req, res) => {
     const token = req.header('token')
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-        res.status(200).json({ nickname: decodedToken.nickname })
+        res.status(200).json({ nickname: decodedToken.nickname, email: decodedToken.email})
     } catch (error) {
         res.status(500).json({ message: 'Error al decodificar el token' })
     }
