@@ -67,33 +67,106 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const updateNickname = async (req, res) => {
+    try {
+        const username = req.params.nickname;
+        const update = { nickname: req.body.nickname };
+        const user = await User.findOne({ nickname: username })
+
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
+
+        if (!update.nickname || update.nickname === "") {
+            return res.status(200).json({message: "Debe proporcionar un nombre de usuario válido"})
+        }
+        
+        if (update.nickname === username) {
+            return res.status(200).json({message: "El nombre de usuario debe ser diferente al actual"})
+        }
+        if(!validPassword) return res.status(200).json({message: "La contraseña no es válida"})
+
+        const updatedUser = await User.findOneAndUpdate({nickname: username}, update, { new: true });
+
+        return res.status(200).json({
+            message: 'El nombre de usuario se ha actualizado correctamente',
+            updatedUser
+        });
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Error al actualizar el usuario',
+            err
+        });
+    }
+};
+
+const updateEmail = async (req, res) => {
+    try {
+        const email = req.params.email;
+        const update = { email: req.body.email };
+        const user = await User.findOne({ email: email })
+
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
+
+        if (!update.email || update.email === "") {
+            return res.status(200).json({message: "Debe proporcionar un correo válido"})
+        }
+        
+        if (update.email === email) {
+            return res.status(200).json({message: "El correo debe ser diferente al actual"})
+        }
+        if(!validPassword) return res.status(200).json({message: "La contraseña no es válida"})
+
+        const updatedUser = await User.findOneAndUpdate({email: email}, update, { new: true });
+
+        return res.status(200).json({
+            message: 'El correo se ha actualizado correctamente',
+            updatedUser
+        });
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Error al actualizar el correo',
+            err
+        });
+    }
+};
+
 const updatePassword = async (req, res) => {
     try {
         const username = req.params.nickname;
-        const update = { password: req.body.password };
-        const hashedPassword = bcrypt.hashSync(update.password, 10);
-        update.password = hashedPassword;
+        const oldPassword = req.body.oldPassword;
+        const newPassword = req.body.newPassword;
+        
         const user = await User.findOne({ nickname: username });
 
         if (!user) {
             return res.status(404).send({
                 message: 'El usuario no existe'
-            })
+            });
         }
 
+        const validPassword = await bcrypt.compare(oldPassword, user.password);
+        if (!validPassword) {
+            return res.status(401).send({
+                message: 'La contraseña antigua no es válida'
+            });
+        }
+
+        if(oldPassword === newPassword) return res.status(200).json({message: 'La contraseña nueva no puede coincidir con la antigua'})
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const update = { password: hashedPassword };
         const updatedUser = await User.findOneAndUpdate({ nickname: username }, update, { new: true });
 
         return res.status(200).json({
             message: 'La contraseña se ha actualizado correctamente',
             updatedUser
-        })
+        });
     } catch (err) {
         return res.status(500).json({
             message: 'Error en el servidor',
             err
         });
     }
-}
+};
 
 const getNickname = async (req, res) => {
     try {
@@ -142,4 +215,4 @@ const getEmail = async (req, res) => {
 
 
 
-module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail }
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail }
