@@ -33,6 +33,8 @@ app.use(cors({
     credentials: true
 }))
 
+
+
 //Rutas
 app.use(userRouter);
 app.use(videogameRouter);

@@ -84,14 +84,24 @@ const updateNickname = async (req, res) => {
         }
         if(!validPassword) return res.status(200).json({message: "La contraseña no es válida"})
 
+        const existingUser = await User.findOne({ nickname: update.nickname });
+
+        if (existingUser) {
+            return res.status(200).json({message: "El nombre de usuario ya está en uso"})
+        }
+
         const updatedUser = await User.findOneAndUpdate({nickname: username}, update, { new: true });
+
+        const payload = { username: updatedUser.nickname, email: updatedUser.email };
+        const token = jwt.sign(payload, process.env.JWT_SECRET);
 
         return res.status(200).json({
             message: 'El nombre de usuario se ha actualizado correctamente',
-            updatedUser
+            updatedUser,
+            token
         });
     } catch (err) {
-        return res.status(500).json({
+        return res.status(200).json({
             message: 'Error al actualizar el usuario',
             err
         });
@@ -115,6 +125,12 @@ const updateEmail = async (req, res) => {
         }
         if(!validPassword) return res.status(200).json({message: "La contraseña no es válida"})
 
+        const existingEmail = await User.findOne({ email: update.email });
+
+        if (existingEmail) {
+            return res.status(200).json({message: "El correo proporcionado ya está en uso"})
+        }
+
         const updatedUser = await User.findOneAndUpdate({email: email}, update, { new: true });
 
         return res.status(200).json({
@@ -122,7 +138,7 @@ const updateEmail = async (req, res) => {
             updatedUser
         });
     } catch (err) {
-        return res.status(500).json({
+        return res.status(200).json({
             message: 'Error al actualizar el correo',
             err
         });
@@ -138,14 +154,14 @@ const updatePassword = async (req, res) => {
         const user = await User.findOne({ nickname: username });
 
         if (!user) {
-            return res.status(404).send({
+            return res.status(200).send({
                 message: 'El usuario no existe'
             });
         }
 
         const validPassword = await bcrypt.compare(oldPassword, user.password);
         if (!validPassword) {
-            return res.status(401).send({
+            return res.status(200).send({
                 message: 'La contraseña antigua no es válida'
             });
         }
@@ -161,7 +177,7 @@ const updatePassword = async (req, res) => {
             updatedUser
         });
     } catch (err) {
-        return res.status(500).json({
+        return res.status(200).json({
             message: 'Error en el servidor',
             err
         });

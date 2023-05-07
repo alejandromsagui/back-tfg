@@ -8,5 +8,6 @@ authRouter.post('/register', isAuthenticated, authController.newUser)
 authRouter.post('/login', isAuthenticated, authController.login)
 authRouter.post('/recovery', authController.recoveryPassword)
 authRouter.get('/decode', authController.decodeToken)
+authRouter.put('/updateToken', authController.updateToken)
 
 module.exports = authRouter;

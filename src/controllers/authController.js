@@ -43,16 +43,16 @@ const login = async (req, res) => {
         ]
     });
 
-    if (!user) return res.status(400).json({ error: 'El usuario no es válido' })
+    if (!user) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
-    const validPassword = await bcrypt.compare(req.body.password, user.password);
-    if (!validPassword) return res.status(400).json({ error: 'La contraseña no es válida' })
+    const validPassword = await bcrypt.compare(""+req.body.password, user.password);
+    if (!validPassword) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
 
     const token = jwt.sign({
         nickname: user.nickname,
         email: user.email
-    }, process.env.JWT_SECRET, {expiresIn: '1h'});
+    }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.header('token', token).json({
         error: null,
@@ -72,8 +72,8 @@ const recoveryPassword = async (req, res) => {
             ]
         })
 
-        console.log('Nombre de usuario: '+user.nickname);
-        console.log('Correo: '+user.email);
+        console.log('Nombre de usuario: ' + user.nickname);
+        console.log('Correo: ' + user.email);
 
         if (user) {
 
@@ -95,9 +95,9 @@ const recoveryPassword = async (req, res) => {
             })
         }
     } catch (error) {
-            console.log(error);
-            res.status(500).send('Error al enviar el correo electrónico');
-        
+        console.log(error);
+        res.status(500).send('Error al enviar el correo electrónico');
+
     }
 }
 
@@ -105,10 +105,34 @@ const decodeToken = (req, res) => {
     const token = req.header('token')
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-        res.status(200).json({ nickname: decodedToken.nickname, email: decodedToken.email})
+        res.status(200).json({ nickname: decodedToken.nickname, email: decodedToken.email })
     } catch (error) {
         res.status(500).json({ message: 'Error al decodificar el token' })
     }
 }
 
-module.exports = { newUser, login, recoveryPassword, decodeToken }
+const updateToken = async (req, res) => {
+
+    const user = await userModel.findOne({
+        $or: [
+            { nickname: req.body.nickname },
+            { email: req.body.email }
+        ]
+    });
+
+    const token = jwt.sign(
+        {
+            nickname: user.nickname,
+            email: user.email
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
+
+    res.header('token', token).json({
+        error: null,
+        data: { token }
+    })
+};
+
+module.exports = { newUser, login, recoveryPassword, decodeToken, updateToken }
