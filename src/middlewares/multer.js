@@ -1,9 +1,16 @@
 const multer = require("multer");
 const sharp = require("sharp")
 const path = require('path');
+const { generateFilename } = require('../services/generate-code')
 
 const multerMid = multer({
-    storage: multer.memoryStorage(),
+    storage: multer.memoryStorage({
+        
+        filename: (req, file, cb) => {
+            const filename = generateFilename(file.originalname);
+            cb(null, filename);
+        },
+    }),
 
     fileFilter: (req, file, cb) => {
         const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -27,7 +34,7 @@ const reduceImageSize = (req, res, next) => {
 
     try {
         sharp(req.file.buffer)
-            .resize({ height: 250, width: 500, fit: sharp.fit.contain })
+            .resize({ height: 250, width: 500, fit: sharp.fit.cover })
             .toBuffer()
             .then((data) => {
                 req.file.buffer = data;

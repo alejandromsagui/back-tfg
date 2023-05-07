@@ -1,5 +1,6 @@
 const Videogame = require('../models/videogameModel');
-const multer = require('multer');
+const uploadImage = require('../helpers/upload')
+const { decodeToken } = require('./authController')
 
 const getVideogames = async (req, res) => {
     try {
@@ -17,23 +18,58 @@ const getVideogames = async (req, res) => {
         });
     }
 }
+const uploadVideogameImage = async (req, res, next) => {
+    try {
+        const myFile = req.file
+        const imageUrl = await uploadImage(myFile)
+        const urlCover = imageUrl
+        console.log('Valor de urlCover: ' + urlCover);
+        return urlCover
+    } catch (error) {
+        next(error)
+    }
+}
 
 const newVideogame = async (req, res) => {
     try {
+        const url = await uploadVideogameImage(req, res)
+
+        // if (!req.headers.authorization) {
+        //     return res.status(401).json({
+        //         message: 'No se proporcionó un token de autorización'
+        //     });
+        // }
+
+        // const token = req.headers.authorization.split('Bearer ')[1]
+
+        // if (!token) {
+        //     return res.status(401).json({
+        //         message: 'El token de autorización es inválido o está en un formato incorrecto'
+        //     });
+        // }
+
+        // const data = await decodeToken(token);
+
+        // console.log('Valor de data: ' + data);
+        console.log('Valor url: ' + url);
         const videogame = ({
             name: req.body.name,
-            cover: req.body.cover,
             description: req.body.description,
-            genre: req.body.genre
+            genre: req.body.genre,
+            image: url,
+            price: req.body.price,
+            // userId: data.sub,
+            // nickname: data.nickname
         })
         const videogameDB = await Videogame.create(videogame);
 
+        console.log(videogame);
         return res.status(200).json({
             message: 'El videojuego se ha creado correctamente',
             videogameDB
-        });
-
+        })
     } catch (err) {
+        console.log(err);
         return res.status(500).json({
             status: 'fail',
             message: 'Error al subir un videojuego',
@@ -45,7 +81,7 @@ const newVideogame = async (req, res) => {
 const updateVideogame = async (req, res) => {
     try {
         const id = req.params.id;
-        const update = {name: req.body.name, cover:req.body.cover, description:req.body.description, genre:req.body.genre}
+        const update = { name: req.body.name, description: req.body.description, genre: req.body.genre, price: req.body.price }
         const videogame = await Videogame.findById(id);
 
         if (!videogame) {
@@ -92,4 +128,5 @@ const deleteVideogame = async (req, res) => {
 }
 
 
-module.exports = { getVideogames, newVideogame, updateVideogame, deleteVideogame }
+
+module.exports = { getVideogames, newVideogame, updateVideogame, deleteVideogame, uploadVideogameImage }

@@ -45,7 +45,7 @@ const login = async (req, res) => {
 
     if (!user) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
-    const validPassword = await bcrypt.compare(""+req.body.password, user.password);
+    const validPassword = await bcrypt.compareSync(""+req.body.password, user.password);
     if (!validPassword) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
 

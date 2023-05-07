@@ -6,4 +6,10 @@ const generateCode = () => {
     return code;
 }
 
-module.exports = generateCode;
+const generateFilename = (originalName) => {
+    const ext = path.extname(originalName);
+    const name = crypto.randomBytes(16).toString('hex');
+    return `${name}${ext}`;
+};
+
+module.exports = { generateCode, generateFilename };
