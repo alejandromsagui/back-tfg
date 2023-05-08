@@ -34,32 +34,27 @@ const newVideogame = async (req, res) => {
     try {
         const url = await uploadVideogameImage(req, res)
 
-        // if (!req.headers.authorization) {
-        //     return res.status(401).json({
-        //         message: 'No se proporcionó un token de autorización'
-        //     });
-        // }
+        const data =  decodeToken(req);
+        console.log('Token desde nuevo videojuego: '+data);
 
-        // const token = req.headers.authorization.split('Bearer ')[1]
-
-        // if (!token) {
-        //     return res.status(401).json({
-        //         message: 'El token de autorización es inválido o está en un formato incorrecto'
-        //     });
-        // }
-
-        // const data = await decodeToken(token);
-
-        // console.log('Valor de data: ' + data);
+        if (!data) {
+            return res.status(401).json({
+                message: 'El token de autorización es inválido o está en un formato incorrecto'
+            });
+        }
+        
+        console.log('Valor de data: ' + data);
         console.log('Valor url: ' + url);
+        console.log('Valor de decodeToken id: '+data._id);
+        console.log('Valor de decodeToken nickname: '+data.nickname);
         const videogame = ({
             name: req.body.name,
             description: req.body.description,
             genre: req.body.genre,
             image: url,
             price: req.body.price,
-            // userId: data.sub,
-            // nickname: data.nickname
+            userId: data._id,
+            nickname: data.nickname
         })
         const videogameDB = await Videogame.create(videogame);
 

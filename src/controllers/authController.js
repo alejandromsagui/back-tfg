@@ -45,16 +45,17 @@ const login = async (req, res) => {
 
     if (!user) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
-    const validPassword = await bcrypt.compareSync(""+req.body.password, user.password);
+    const validPassword = await bcrypt.compare("" + req.body.password, user.password);
     if (!validPassword) return res.status(200).json({ error: 'Nombre de usuario o contraseña incorrectos' })
 
 
     const token = jwt.sign({
+        _id: user._id,
         nickname: user.nickname,
         email: user.email
     }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.header('token', token).json({
+    res.header('Authorization', token).json({
         error: null,
         data: { token }
     })
@@ -101,13 +102,18 @@ const recoveryPassword = async (req, res) => {
     }
 }
 
-const decodeToken = (req, res) => {
-    const token = req.header('token')
+const decodeToken = (req) => {
+    const authHeader = req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new Error('Acceso no autorizado');
+    }
+    const token = authHeader.split(' ')[1];
     try {
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-        res.status(200).json({ nickname: decodedToken.nickname, email: decodedToken.email })
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        return decodedToken;
     } catch (error) {
-        res.status(500).json({ message: 'Error al decodificar el token' })
+        console.log(error);
+        throw new Error('Error al decodificar el token');
     }
 }
 
@@ -129,7 +135,7 @@ const updateToken = async (req, res) => {
         { expiresIn: '1h' }
     );
 
-    res.header('token', token).json({
+    res.header('Authorization', token).json({
         error: null,
         data: { token }
     })

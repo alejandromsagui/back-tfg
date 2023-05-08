@@ -34,7 +34,7 @@ const reduceImageSize = (req, res, next) => {
 
     try {
         sharp(req.file.buffer)
-            .resize({ height: 250, width: 500, fit: sharp.fit.cover })
+            // .resize({ height: 250, width: 500 })
             .toBuffer()
             .then((data) => {
                 req.file.buffer = data;
