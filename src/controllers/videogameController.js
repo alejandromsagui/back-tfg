@@ -26,50 +26,31 @@ const uploadVideogameImage = async (req, res, next) => {
         console.log('Valor de urlCover: ' + urlCover);
         return urlCover
     } catch (error) {
-        next(error)
+        console.log(error);
     }
 }
 
 const newVideogame = async (req, res) => {
     try {
-        const url = await uploadVideogameImage(req, res)
 
-        const data =  decodeToken(req);
-        console.log('Token desde nuevo videojuego: '+data);
-
-        if (!data) {
-            return res.status(401).json({
-                message: 'El token de autorización es inválido o está en un formato incorrecto'
-            });
-        }
-        
-        console.log('Valor de data: ' + data);
-        console.log('Valor url: ' + url);
-        console.log('Valor de decodeToken id: '+data._id);
-        console.log('Valor de decodeToken nickname: '+data.nickname);
         const videogame = ({
             name: req.body.name,
             description: req.body.description,
+            image: req.body.image,
             genre: req.body.genre,
-            image: url,
-            price: req.body.price,
-            userId: data._id,
-            nickname: data.nickname
+            userId: req.body.id,
+            nickname: req.body.nickname
         })
         const videogameDB = await Videogame.create(videogame);
 
-        console.log(videogame);
         return res.status(200).json({
             message: 'El videojuego se ha creado correctamente',
             videogameDB
-        })
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            status: 'fail',
-            message: 'Error al subir un videojuego',
-            err
         });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error al decodificar el token' });
     }
 }
 

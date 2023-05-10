@@ -1,13 +1,13 @@
 const express = require('express');
 const videogameRouter = express.Router();
 const videogameController = require('../controllers/videogameController');
-const isAuthenticated = require ('../middlewares/is-authenticated')
+const verifyToken = require ('../middlewares/validate-token')
 
 videogameRouter.get('/videogames', videogameController.getVideogames);
-videogameRouter.post('/newVideogame', videogameController.newVideogame);
-videogameRouter.put('/updateVideogame/:id', videogameController.updateVideogame);
-videogameRouter.delete('/deleteVideogame/:id', videogameController.deleteVideogame);
-videogameRouter.post('/uploads', videogameController.uploadVideogameImage);
+videogameRouter.post('/newVideogame', verifyToken, videogameController.newVideogame);
+videogameRouter.put('/updateVideogame/:id', verifyToken, videogameController.updateVideogame);
+videogameRouter.delete('/deleteVideogame/:id', verifyToken, videogameController.deleteVideogame);
+videogameRouter.post('/uploads', verifyToken, videogameController.uploadVideogameImage);
 
 
 module.exports = videogameRouter

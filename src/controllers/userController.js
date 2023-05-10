@@ -78,7 +78,7 @@ const updateNickname = async (req, res) => {
         if (!update.nickname || update.nickname === "") {
             return res.status(200).json({message: "Debe proporcionar un nombre de usuario válido"})
         }
-        
+
         if (update.nickname === username) {
             return res.status(200).json({message: "El nombre de usuario debe ser diferente al actual"})
         }
@@ -89,16 +89,11 @@ const updateNickname = async (req, res) => {
         if (existingUser) {
             return res.status(200).json({message: "El nombre de usuario ya está en uso"})
         }
-
         const updatedUser = await User.findOneAndUpdate({nickname: username}, update, { new: true });
-
-        const payload = { username: updatedUser.nickname, email: updatedUser.email };
-        const token = jwt.sign(payload, process.env.JWT_SECRET);
 
         return res.status(200).json({
             message: 'El nombre de usuario se ha actualizado correctamente',
             updatedUser,
-            token
         });
     } catch (err) {
         return res.status(200).json({
@@ -218,7 +213,8 @@ const getEmail = async (req, res) => {
         }
 
         return res.status(200).send({
-            message: 'El email existe'
+            message: 'El email existe',
+            user
         })
 
     } catch (error) {

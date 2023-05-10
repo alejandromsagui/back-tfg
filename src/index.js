@@ -11,6 +11,10 @@ const { multerMid } = require('./middlewares/multer')
 const {reduceImageSize} = require('./middlewares/multer')
 const errorHandler = require('./middlewares/errorHandler')
 
+const storage = require("./services/cloud")
+const bucket = storage.bucket('namekiansgames')
+const { format } = require('util');
+
 //Servidor en escucha
 app.listen(port, () => {
     console.log('Servidor corriendo en el puerto ' + port);
@@ -20,7 +24,7 @@ app.listen(port, () => {
 app.use(bodyParser.json());
 
 //Url Encode
-app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //Multer
 app.use(multerMid.single('image'))
@@ -31,6 +35,31 @@ app.use(cors({
     origin: true,
     credentials: true
 }))
+
+app.post('/upload', async (file) => {
+    try {
+        const { originalname, buffer } = file
+        const blob = bucket.file('Videojuegos/'+originalname)
+        const blobStream = blob.createWriteStream({ resumable: false })
+        const publicUrl = await new Promise((resolve, reject) => {
+            blobStream
+                .on('finish', () => {
+                    const publicUrl = format(
+                        `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+                    )
+                    resolve(publicUrl)
+                })
+                .on('error', (error) => {
+                    reject(new Error(`Error al subir la imagen: ${error.message}`))
+                })
+                .end(buffer)
+        })
+        return publicUrl
+    } catch (error) {
+        console.error(error.message)
+        throw error
+    }
+})
 
 //Rutas
 app.use(userRouter);

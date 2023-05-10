@@ -1,13 +1,13 @@
 const express = require('express');
 const authRouter = express.Router();
 const authController = require ('../controllers/authController')
-const isAuthenticated = require ('../middlewares/is-authenticated')
+const verifyToken = require ('../middlewares/validate-token')
 
 
-authRouter.post('/register', isAuthenticated, authController.newUser)
-authRouter.post('/login', isAuthenticated, authController.login)
+authRouter.post('/register', authController.newUser)
+authRouter.post('/login', authController.login)
 authRouter.post('/recovery', authController.recoveryPassword)
-authRouter.get('/decode', authController.decodeToken)
-authRouter.put('/updateToken', authController.updateToken)
+authRouter.get('/decode', verifyToken, authController.decodeToken)
+authRouter.put('/updateToken', verifyToken, authController.updateToken)
 
 module.exports = authRouter;

@@ -2,7 +2,8 @@ const userModel = require('../models/usuarioModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const transporter = require('../services/mailer');
-const generateCode = require('../services/generate-code')
+const {generateCode} = require('../services/generate-code')
+const verifyToken = require("../middlewares/validate-token")
 require('dotenv').config({ path: '.env' });
 
 const newUser = async (req, res) => {
@@ -50,7 +51,7 @@ const login = async (req, res) => {
 
 
     const token = jwt.sign({
-        _id: user._id,
+        id: user.id,
         nickname: user.nickname,
         email: user.email
     }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -102,19 +103,9 @@ const recoveryPassword = async (req, res) => {
     }
 }
 
-const decodeToken = (req) => {
-    const authHeader = req.header('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new Error('Acceso no autorizado');
-    }
-    const token = authHeader.split(' ')[1];
-    try {
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        return decodedToken;
-    } catch (error) {
-        console.log(error);
-        throw new Error('Error al decodificar el token');
-    }
+const decodeToken = (req, res) => {
+    const user = req.user;
+    res.status(200).json({ user });
 }
 
 const updateToken = async (req, res) => {
@@ -128,6 +119,7 @@ const updateToken = async (req, res) => {
 
     const token = jwt.sign(
         {
+            id: user.id,
             nickname: user.nickname,
             email: user.email
         },

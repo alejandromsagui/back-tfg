@@ -6,7 +6,7 @@ var videogameSchema = new mongoose.Schema({
     description: { type: String, required: true },
     image: { type: String, required: true },
     genre: { type: Array, required: true },
-    price: { type: Number, required: true },
+    price: { type: Number },
     nickname: {type: String, required: true},
     userId: {
         type: Schema.Types.ObjectId,

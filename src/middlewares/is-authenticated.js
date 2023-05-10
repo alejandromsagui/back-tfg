@@ -1,5 +1,5 @@
 const isAuthenticated = (req, res, next) => {
-    const token = req.header('token')
+    const token = req.header('Authorization')
     if (token && token !== "") {
         res.send('No puedes acceder a esta ruta estando autenticado')
     } else {
