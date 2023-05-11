@@ -1,6 +1,7 @@
 const Videogame = require('../models/videogameModel');
 const uploadImage = require('../helpers/upload')
 const { decodeToken } = require('./authController')
+const verifyToken = require('../middlewares/validate-token')
 
 const getVideogames = async (req, res) => {
     try {
@@ -32,27 +33,37 @@ const uploadVideogameImage = async (req, res, next) => {
 
 const newVideogame = async (req, res) => {
     try {
+        
+        const url = await uploadVideogameImage(req)
+        console.log('Url desde newVideogame: '+url);
 
-        const videogame = ({
+        verifyToken(req, res, async () => {
+    
+            if(!url){
+                console.log('asd');
+            }
+          const videogame = {
             name: req.body.name,
             description: req.body.description,
-            image: req.body.image,
+            image: url,
             genre: req.body.genre,
-            userId: req.body.id,
-            nickname: req.body.nickname
-        })
-        const videogameDB = await Videogame.create(videogame);
+            price: req.body.price,
+            userId: req.user.id, 
+            nickname: req.user.nickname,
+          };
 
-        return res.status(200).json({
+          const videogameDB = await Videogame.create(videogame);
+
+          return res.status(200).json({
             message: 'El videojuego se ha creado correctamente',
-            videogameDB
+            videogameDB,
+          });
         });
-
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Error al decodificar el token' });
+      console.log(error);
+      res.status(500).json({ message: 'Error al decodificar el token' });
     }
-}
+  };
 
 const updateVideogame = async (req, res) => {
     try {
