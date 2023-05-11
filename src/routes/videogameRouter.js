@@ -4,7 +4,7 @@ const videogameController = require('../controllers/videogameController');
 const verifyToken = require ('../middlewares/validate-token')
 
 videogameRouter.get('/videogames', videogameController.getVideogames);
-videogameRouter.post('/newVideogame', verifyToken, videogameController.newVideogame);
+videogameRouter.post('/newVideogame', videogameController.newVideogame);
 videogameRouter.put('/updateVideogame/:id', verifyToken, videogameController.updateVideogame);
 videogameRouter.delete('/deleteVideogame/:id', verifyToken, videogameController.deleteVideogame);
 videogameRouter.post('/uploads', verifyToken, videogameController.uploadVideogameImage);
