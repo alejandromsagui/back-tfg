@@ -4,6 +4,7 @@ const authController = require ('../controllers/authController')
 const verifyToken = require ('../middlewares/validate-token')
 
 
+authRouter.get('/checkJWT', authController.parseJwt)
 authRouter.post('/register', authController.newUser)
 authRouter.post('/login', authController.login)
 authRouter.post('/recovery', authController.recoveryPassword)
