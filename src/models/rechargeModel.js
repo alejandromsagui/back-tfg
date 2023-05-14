@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const rechargeSchema = new mongoose.Schema({
     quantity: { type: Number},

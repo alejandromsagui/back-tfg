@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const transactionSchema = new mongoose.Schema({
     transaction: { type: String, enum: ['Compra', 'Venta'] },

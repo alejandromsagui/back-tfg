@@ -1,6 +1,7 @@
 const express = require('express');
 const userRouter = require('./routes/userRouter');
 const videogameRouter = require('./routes/videogameRouter');
+const paymentRouter = require('./routes/paymentRouter')
 const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -65,5 +66,6 @@ app.post('/upload', async (file) => {
 app.use(userRouter);
 app.use(videogameRouter);
 app.use(authRouter);
+app.use(paymentRouter);
 
 

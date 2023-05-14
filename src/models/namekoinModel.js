@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const namekoinSchema = new mongoose.Schema({
     amount: {type: Number},
