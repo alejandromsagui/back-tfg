@@ -191,8 +191,39 @@ const getNickname = async (req, res) => {
         }
 
         return res.status(200).send({
-            message: 'El usuario existe'
+            message: 'El usuario existe',
+            user
         })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al encontrar al usuario',
+            error
+        });
+    }
+}
+
+const getPermission = async (req, res ) => {
+    try {
+        const username = req.params.nickname;
+        const user = await User.findOne({nickname: username})
+
+        if (!user) {
+            return res.status(404).send({
+                message: 'El usuario no ha sido encontrado'
+            })
+        }
+
+        if (user.rol === 'Administrador') {
+            return res.status(200).send({
+                message: 'El usuario es administrador',
+                isAdmin: true
+            })
+        } else {
+            return res.status(200).send({
+                message: 'El usuario no es administrador',
+                isAdmin: false
+            })
+        }
     } catch (error) {
         return res.status(500).json({
             message: 'Error al encontrar al usuario',
@@ -227,4 +258,4 @@ const getEmail = async (req, res) => {
 
 
 
-module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail }
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail, getPermission }

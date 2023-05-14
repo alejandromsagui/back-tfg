@@ -9,6 +9,6 @@ authRouter.post('/register', authController.newUser)
 authRouter.post('/login', authController.login)
 authRouter.post('/recovery', authController.recoveryPassword)
 authRouter.get('/decode', verifyToken, authController.decodeToken)
-authRouter.put('/updateToken', verifyToken, authController.updateToken)
+authRouter.put('/updateToken', authController.updateToken)
 
 module.exports = authRouter;

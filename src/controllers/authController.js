@@ -149,6 +149,4 @@ const parseJwt = (req, res) => {
         res.status(200).json({ token })
     }
 };
-
-
 module.exports = { newUser, login, recoveryPassword, decodeToken, updateToken, parseJwt }
