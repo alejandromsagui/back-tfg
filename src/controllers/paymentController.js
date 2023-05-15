@@ -53,7 +53,7 @@ const createOrder = async (req, res) => {
         res.json(response.data);
 
     } catch (error) {
-        return res.status(500).send("Algo fue a la hora de crear el pedido")
+        return res.status(500).send("Algo fue mal a la hora de crear el pedido")
     }
 };
 
