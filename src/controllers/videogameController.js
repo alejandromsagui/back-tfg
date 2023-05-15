@@ -33,37 +33,38 @@ const uploadVideogameImage = async (req, res, next) => {
 
 const newVideogame = async (req, res) => {
     try {
-        
+
         const url = await uploadVideogameImage(req)
-        console.log('Url desde newVideogame: '+url);
+        console.log('Url desde newVideogame: ' + url);
 
         verifyToken(req, res, async () => {
-    
-            if(!url){
+
+            if (!url) {
                 console.log('asd');
             }
-          const videogame = {
-            name: req.body.name,
-            description: req.body.description,
-            image: url,
-            genre: req.body.genre,
-            price: req.body.price,
-            userId: req.user.id, 
-            nickname: req.user.nickname,
-          };
+            const videogame = {
+                name: req.body.name,
+                description: req.body.description,
+                image: url,
+                genre: req.body.genre,
+                platform: req.body.platform,
+                price: req.body.price,
+                userId: req.user.id,
+                nickname: req.user.nickname,
+            };
 
-          const videogameDB = await Videogame.create(videogame);
+            const videogameDB = await Videogame.create(videogame);
 
-          return res.status(200).json({
-            message: 'El videojuego se ha creado correctamente',
-            videogameDB,
-          });
+            return res.status(200).json({
+                message: 'El videojuego se ha creado correctamente',
+                videogameDB,
+            });
         });
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: 'Error al decodificar el token' });
+        console.log(error);
+        res.status(500).json({ message: 'Error al decodificar el token' });
     }
-  };
+};
 
 const updateVideogame = async (req, res) => {
     try {
