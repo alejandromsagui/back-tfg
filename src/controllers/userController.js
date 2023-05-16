@@ -279,6 +279,32 @@ const getUser = async (req, res) => {
     }
 }
 
+const updateNamekoins = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const update = { number_namekoins: req.body.number_namekoins };
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).send({
+                message: 'El usuario no existe'
+            });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(id, update, { new: true });
+
+        return res.status(200).json({
+            message: 'Número de Namekoins actualizados correctamente',
+            updatedUser
+        });
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Error al actualizar el número de Namekoins',
+            err
+        });
+    }
+};
 
 
-module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail, getPermission, getUser }
+
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail, getPermission, getUser, updateNamekoins }

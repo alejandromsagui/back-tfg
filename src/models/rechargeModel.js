@@ -2,8 +2,10 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const rechargeSchema = new mongoose.Schema({
-    quantity: { type: Number, enum: ['10', '25', '40'], required: true},
-    date: { type: Date, required: true},
+    quantity: { type: Number, required: true, validator: function(v){
+        return [10, 25, 40].includes(v);
+    }, message: 'El valor de {PATH} debe ser 10, 25 o 40' },
+    date: { type: String, required: true},
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'Users',
