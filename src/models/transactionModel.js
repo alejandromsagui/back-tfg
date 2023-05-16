@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const transactionSchema = new mongoose.Schema({
     transaction: { type: String, enum: ['Compra', 'Venta'] },
     description: { type: String },
-    date: { type: Date },
+    date: { type: String },
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'Users',
