@@ -1,4 +1,4 @@
-const { Transaction } = require("../models/transactionModel")
+const recharge = require("../models/rechargeModel")
 const axios = require("axios");
 require('dotenv').config({ path: '.env' });
 
@@ -59,7 +59,8 @@ const createOrder = async (req, res) => {
 
 const captureOrder = async (req, res) => {
 
-    const { token } = req.query
+    try {
+        const { token } = req.query
     console.log(token);
     res.send('Capturando la compra')
 
@@ -70,15 +71,49 @@ const captureOrder = async (req, res) => {
         }
     })
 
-    
-
     //Falta añadir interfaz 
     console.log(response.data);
     console.log('Petición capturada');
+
+    console.log('Valor de req.user desde compra aceptada: '+req.user);
+    const newRecharge = {
+        quantity: req.body.quantity,
+        date: new Date().toLocaleString("es-ES"),
+        userId: req.user.id,
+        nickname: req.user.nickname
+      };
+
+      const recharge = await recharge.create(newRecharge);
+
+      return res.status(200).json({
+        message: 'Nueva recarga realizada',
+        recharge
+      })
+    } catch (error) {
+        return res.status(500).json({ message: 'Ha ocurrido un error al realizar la recarga', error })
+    } finally {
+        
+    }
 }
 
 const cancelOrder = (req, res) => {
     res.redirect("https://namekiansgames.herokuapp.com") 
 }
 
-module.exports = { createOrder, captureOrder, cancelOrder };
+const getRecharges = async (req, res) => {
+    try {
+        const recharges = await recharge.find();
+
+        res.status(200).json({
+            status: 'ok',
+            recharges
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            status: 'fail',
+            message: 'Error al ver las recargas',
+        });
+    }
+}
+module.exports = { createOrder, captureOrder, cancelOrder, getRecharges };

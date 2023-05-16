@@ -3,7 +3,7 @@ const userRouter = express.Router();
 const userController = require('../controllers/userController')
 const verifyToken = require ('../middlewares/validate-token')
 
-userRouter.get('/users', userController.getUsers);
+userRouter.get('/users', verifyToken, userController.getUsers);
 userRouter.get('/getNickname/:nickname', userController.getNickname)
 userRouter.get('/getEmail/:email', userController.getEmail);
 userRouter.get('/getPermission/:nickname', userController.getPermission)

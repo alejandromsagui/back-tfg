@@ -14,6 +14,6 @@ const rechargeSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Rechargue = new mongoose.model('Recharges', rechargeSchema);
+const Recharge = mongoose.model('Recharges', rechargeSchema);
 
-module.exports = Rechargue;
+module.exports = Recharge;
