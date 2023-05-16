@@ -16,7 +16,7 @@ const createOrder = async (req, res) => {
                 {
                     amount: {
                         currency_code: "EUR",
-                        value: "10"
+                        value: req.body.quantity
                     },
                     description: "Recarga de Namekoins"
                 }
@@ -70,8 +70,11 @@ const captureOrder = async (req, res) => {
         }
     })
 
+    
+
     //Falta añadir interfaz 
     console.log(response.data);
+    console.log('Petición capturada');
 }
 
 const cancelOrder = (req, res) => {

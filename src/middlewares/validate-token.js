@@ -3,9 +3,10 @@ require('dotenv').config({ path: '.env' });
 
 const verifyToken = (req, res, next) => {
     const authHeader = req.header('Authorization');
+    console.log('Auth header desde el backend: '+authHeader);
     if (!authHeader) return res.status(401).json({ error: 'Acceso denegado' });
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1].trim().replace(/^"(.*)"$/, '$1');
     console.log(token);
 
     try {

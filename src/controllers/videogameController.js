@@ -37,10 +37,8 @@ const newVideogame = async (req, res) => {
         const url = await uploadVideogameImage(req)
         console.log('Url desde newVideogame: ' + url);
 
-        verifyToken(req, res, async () => {
-
             if (!url) {
-                console.log('asd');
+                console.log('No hay url');
             }
             const videogame = {
                 name: req.body.name,
@@ -59,7 +57,7 @@ const newVideogame = async (req, res) => {
                 message: 'El videojuego se ha creado correctamente',
                 videogameDB,
             });
-        });
+            
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error al decodificar el token' });
