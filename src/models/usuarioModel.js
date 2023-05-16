@@ -5,7 +5,6 @@ const userSchema =  new mongoose.Schema({
     email: { type: String, required: true },
     password: { type: String },
     number_namekoins: { type: Number },
-    number_transactions: { type: Number },
     rol: {type: String, enum: ['Administrador', 'Usuario']}
 }, {
     timestamps: true
