@@ -1,14 +1,15 @@
 const recharge = require("../models/rechargeModel")
 const axios = require("axios");
 require('dotenv').config({ path: '.env' });
-
-
+var nickname = ''
+var id = ''
 // /capture-order?token=9RN51516J7574384P&PayerID=QSFLPRYQQYEZ6
 //La url retorna eso, el token es el ID de la transacción aprobada (el usuario le dio a aceptar), 
 const createOrder = async (req, res) => {
 
+    nickname = req.user.nickname;
+    id = req.user.id;
     try {
-
         //Este objeto despues hay que configurarlo. Tengo que recibir un objeto del front con los datos de lo que quiere comprar el cliente, precio...
         const order = {
             intent: 'CAPTURE',
@@ -79,8 +80,8 @@ const captureOrder = async (req, res) => {
     const newRecharge = {
         quantity: req.body.quantity,
         date: new Date().toLocaleString("es-ES"),
-        userId: req.user.id,
-        nickname: req.user.nickname
+        userId: id,
+        nickname: nickname
       };
 
       const recharge = await recharge.create(newRecharge);
@@ -91,8 +92,6 @@ const captureOrder = async (req, res) => {
       })
     } catch (error) {
         return res.status(500).json({ message: 'Ha ocurrido un error al realizar la recarga', error })
-    } finally {
-        
     }
 }
 
