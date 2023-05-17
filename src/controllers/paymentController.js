@@ -4,6 +4,8 @@ require('dotenv').config({ path: '.env' });
 var nickname = ''
 var id = ''
 var cantidad = null
+
+
 // /capture-order?token=9RN51516J7574384P&PayerID=QSFLPRYQQYEZ6
 //La url retorna eso, el token es el ID de la transacción aprobada (el usuario le dio a aceptar), 
 const createOrder = async (req, res) => {

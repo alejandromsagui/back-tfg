@@ -1,6 +1,7 @@
 const transactionModel = require("../models/transactionModel")
 const mongoose = require("mongoose");
 const axios = require("axios")
+var ObjectId = require("mongoose").Types.ObjectId;
 
 const transactions = async (req, res) => {
     try {
@@ -58,4 +59,23 @@ const newTransaction = async (req, res) => {
     }
 }
 
-module.exports = { transactions, newTransaction }
+const getTransactionById = async (req, res) => {
+    const nickname = req.params.nickname;
+  
+    try {
+
+      const transactions = await transactionModel.find({
+        $or: [
+          { nicknameBuyer: nickname },
+          { nicknameSeller: nickname }
+        ]
+      });
+      
+      res.json(transactions);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al obtener las transacciones');
+    }
+  }
+
+module.exports = { transactions, newTransaction, getTransactionById }
