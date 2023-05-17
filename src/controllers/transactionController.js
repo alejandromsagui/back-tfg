@@ -18,7 +18,6 @@ const transactions = async (req, res) => {
     }
 }
 
-//SIn acabar
 const newTransaction = async (req, res) => {
     try {
 
@@ -31,7 +30,8 @@ const newTransaction = async (req, res) => {
             idSeller: req.body.idSeller,
             nicknameSeller: req.body.nicknameSeller, 
             idVideogame: req.body.idVideogame,
-            videogame: req.body.videogame
+            videogame: req.body.videogame,
+            platform: req.body.platform
         }
 
         const transactionDB = transactionModel.create(transaction)

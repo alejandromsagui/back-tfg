@@ -13,7 +13,8 @@ var videogameSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Users',
         required: true
-    }
+    },
+
 }, {
     timestamps: true
 })

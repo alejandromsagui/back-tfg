@@ -22,7 +22,8 @@ const transactionSchema = new mongoose.Schema({
         ref: 'Videogames',
         required: true
     },
-    videogame: { type: String, required: true }
+    videogame: { type: String, required: true },
+    platform: {type: String, required: true}
 }, {
     timestamps: true
 });
