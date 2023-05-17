@@ -14,6 +14,7 @@ var videogameSchema = new mongoose.Schema({
         ref: 'Users',
         required: true
     },
+    status: { type: String, enum: ['', 'Vendido', 'Reservado']}
 
 }, {
     timestamps: true

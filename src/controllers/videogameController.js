@@ -49,6 +49,7 @@ const newVideogame = async (req, res) => {
                 price: req.body.price,
                 userId: req.user.id,
                 nickname: req.user.nickname,
+                status: ''
             };
 
             const videogameDB = await Videogame.create(videogame);
