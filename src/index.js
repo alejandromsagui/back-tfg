@@ -3,6 +3,7 @@ const userRouter = require('./routes/userRouter');
 const videogameRouter = require('./routes/videogameRouter');
 const paymentRouter = require('./routes/paymentRouter')
 const transactionRouter = require('./routes/transactionRouter')
+const ratingRouter = require('./routes/ratingRouter')
 const database = require('./database/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -69,5 +70,5 @@ app.use(videogameRouter);
 app.use(authRouter);
 app.use(paymentRouter);
 app.use(transactionRouter);
-
+app.use(ratingRouter);
 
