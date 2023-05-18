@@ -55,7 +55,7 @@ const login = async (req, res) => {
         id: user.id,
         nickname: user.nickname,
         email: user.email
-    }, process.env.JWT_SECRET, { expiresIn: 120 });
+    }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.header('Authorization', token).json({
         error: null,
