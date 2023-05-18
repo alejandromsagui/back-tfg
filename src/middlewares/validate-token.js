@@ -16,7 +16,7 @@ const verifyToken = (req, res, next) => {
         return req.user;
     } catch (error) {
         console.log(error);
-        res.status(400).json({ error: 'El token no es válido' });
+        res.status(401).json({ error: 'El token no es válido' });
     }
 }
 

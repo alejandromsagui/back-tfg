@@ -2,7 +2,7 @@ const userModel = require('../models/usuarioModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const transporter = require('../services/mailer');
-const {generateCode} = require('../services/generate-code')
+const { generateCode } = require('../services/generate-code')
 const verifyToken = require("../middlewares/validate-token")
 require('dotenv').config({ path: '.env' });
 
@@ -55,7 +55,7 @@ const login = async (req, res) => {
         id: user.id,
         nickname: user.nickname,
         email: user.email
-    }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    }, process.env.JWT_SECRET, { expiresIn: 120 });
 
     res.header('Authorization', token).json({
         error: null,
@@ -140,13 +140,13 @@ const parseJwt = (req, res) => {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const buffer = Buffer.from(base64, 'base64');
     const decode = JSON.parse(buffer.toString());
-    console.log('Decode: ',decode);
+    console.log('Decode: ', decode);
     const expirationTimeInSeconds = decode.exp;
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     if (expirationTimeInSeconds < currentTimeInSeconds) {
-      res.status(401).send('Token expirado')
-    }else{
-        res.status(200).json({ token })
+        res.status(401).json({ error: 'Token expirado' });
+    } else {
+        res.status(200).json({ token, expirationTime: expirationTimeInSeconds });
     }
 };
 module.exports = { newUser, login, recoveryPassword, decodeToken, updateToken, parseJwt }
