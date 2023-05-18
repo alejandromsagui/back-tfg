@@ -1,12 +1,12 @@
 const ratingModel = require('../models/ratingModel')
 
-const getRatings = async(req, res) => {
+const getRatings = async (req, res) => {
+
+    const nickname = req.params.nickname
     try {
-        const ratings = await ratingModel.find();
-        res.status(200).json({
-            status: 'ok',
-            ratings
-        })
+
+        const ratings = await ratingModel.find({ nicknameUserProfile: nickname })
+        res.json(ratings)
     } catch (err) {
         res.status(500).json({
             status: 'fail',
@@ -16,7 +16,7 @@ const getRatings = async(req, res) => {
     }
 }
 
-const newRating = async(req, res) => {
+const newRating = async (req, res) => {
     try {
 
         const rating = ({
@@ -45,4 +45,4 @@ const newRating = async(req, res) => {
     }
 }
 
-module.exports = { getRatings, newRating}
+module.exports = { getRatings, newRating }
