@@ -1,5 +1,5 @@
 const Videogame = require('../models/videogameModel');
-const uploadImage = require('../helpers/upload')
+const {uploadImage} = require('../helpers/upload')
 const { decodeToken } = require('./authController')
 const verifyToken = require('../middlewares/validate-token')
 
