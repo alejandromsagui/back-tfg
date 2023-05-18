@@ -6,7 +6,8 @@ const verifyToken = require ('../middlewares/validate-token')
 userRouter.get('/users', verifyToken, userController.getUsers);
 userRouter.get('/getNickname/:nickname', userController.getNickname)
 userRouter.get('/getEmail/:email', userController.getEmail);
-userRouter.get('/getPermission/:nickname', userController.getPermission)
+userRouter.get('/getPermission/:nickname', userController.getPermission),
+userRouter.put('/uploadAvatarImage', userController.uploadAvatarImage)
 userRouter.put('/updateUser/:id', userController.updateUser);
 userRouter.put('/updateNamekoins/:id', userController.updateNamekoins);
 userRouter.get('/getUser/:nickname', userController.getUser)

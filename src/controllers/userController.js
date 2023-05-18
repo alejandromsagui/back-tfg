@@ -1,6 +1,7 @@
 const User = require("../models/usuarioModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const uploadAvatar = require("../helpers/upload")
 require('dotenv').config({ path: '.env' });
 
 const getUsers = async (req, res) => {
@@ -305,6 +306,16 @@ const updateNamekoins = async (req, res) => {
     }
 };
 
+const uploadAvatarImage = async (req, res, next) => {
+    try {
+        const myFile = req.file
+        const imageUrl = await uploadAvatar(myFile)
+        const urlCover = imageUrl
+        console.log('Valor de urlCover: ' + urlCover);
+        return urlCover
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-
-module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail, getPermission, getUser, updateNamekoins }
+module.exports = { getUsers, updateUser, deleteUser, updatePassword, getNickname, getEmail, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage }

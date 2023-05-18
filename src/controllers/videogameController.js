@@ -30,7 +30,6 @@ const uploadVideogameImage = async (req, res, next) => {
         console.log(error);
     }
 }
-
 const newVideogame = async (req, res) => {
     try {
 
