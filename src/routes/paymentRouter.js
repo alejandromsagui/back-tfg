@@ -4,9 +4,9 @@ const checkTokenExpiration = require("../middlewares/expirationToken")
 const paymentRouter = express.Router();
 const paymentController = require('../controllers/paymentController');
 
-paymentRouter.post('/create-order', verifyToken, checkTokenExpiration, paymentController.createOrder);
+paymentRouter.post('/create-order', verifyToken, paymentController.createOrder);
 paymentRouter.get('/capture-order', paymentController.captureOrder);
 paymentRouter.get('/cancel-order', paymentController.cancelOrder);
-paymentRouter.get('/recharges', verifyToken, checkTokenExpiration, paymentController.getRecharges)
+paymentRouter.get('/recharges', verifyToken, paymentController.getRecharges)
 
 module.exports = paymentRouter;

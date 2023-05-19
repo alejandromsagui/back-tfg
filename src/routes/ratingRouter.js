@@ -5,6 +5,6 @@ const checkTokenExpiration = require("../middlewares/expirationToken")
 const ratingRouter = express.Router();
 
 ratingRouter.get('/ratings/:nickname', ratingController.getRatings)
-ratingRouter.post('/newRating', verifyToken, checkTokenExpiration, ratingController.newRating)
+ratingRouter.post('/newRating', verifyToken, ratingController.newRating)
 
 module.exports = ratingRouter;
