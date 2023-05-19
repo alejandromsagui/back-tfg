@@ -6,15 +6,16 @@ const checkTokenExpiration = require('../middlewares/expirationToken');
 
 userRouter.get('/users', verifyToken, userController.getUsers);
 userRouter.get('/getNickname/:nickname', userController.getNickname)
-userRouter.get('/getEmail/:email', userController.getEmail);
-userRouter.get('/getPermission/:nickname', userController.getPermission),
+userRouter.get('/getNamekoins/:nickname', verifyToken, userController.getNamekoins)
+userRouter.get('/getEmail/:email', verifyToken, userController.getEmail);
+userRouter.get('/getPermission/:nickname', verifyToken, userController.getPermission),
 userRouter.put('/uploadAvatarImage', userController.uploadAvatarImage)
 userRouter.put('/updateUser/:id', userController.updateUser);
-userRouter.put('/updateNamekoins/:id', userController.updateNamekoins);
-userRouter.get('/getUser/:nickname', userController.getUser)
+userRouter.put('/updateNamekoins/:id', verifyToken, userController.updateNamekoins);
+userRouter.get('/getUser/:id', userController.getUser)
 userRouter.put('/updatePassword/:nickname', verifyToken, userController.updatePassword);
 userRouter.put('/updateNickname/:nickname', verifyToken, userController.updateNickname)
 userRouter.put('/updateEmail/:email', verifyToken, userController.updateEmail)
-userRouter.delete('/deleteUser/:id', userController.deleteUser);
+userRouter.delete('/deleteUser/:id', verifyToken, userController.deleteUser);
 
 module.exports = userRouter;
