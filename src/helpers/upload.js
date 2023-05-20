@@ -4,6 +4,10 @@ const { format } = require('util');
 const { v4: uuidv4 } = require('uuid');
 
 const uploadImage = async (file) => {
+    if (!file) {
+        throw new Error('La imagen es obligatoria');
+    }
+
     try {
         const { originalname, buffer } = file;
         const fileName = uuidv4();
@@ -24,7 +28,6 @@ const uploadImage = async (file) => {
         });
         return publicUrl;
     } catch (error) {
-        console.error(error.message);
         throw error;
     }
 };
@@ -50,9 +53,8 @@ const uploadAvatar = async (file) => {
         });
         return publicUrl;
     } catch (error) {
-        console.error(error.message);
         throw error;
     }
 };
 
-module.exports = {uploadImage, uploadAvatar}
+module.exports = { uploadImage, uploadAvatar }

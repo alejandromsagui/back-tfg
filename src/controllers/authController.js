@@ -6,36 +6,53 @@ const { generateCode } = require('../services/generate-code')
 const verifyToken = require("../middlewares/validate-token")
 require('dotenv').config({ path: '.env' });
 
+//Función que valida y registra al usuario si cumple con las condiciones establecidas
 const newUser = async (req, res) => {
-
     const hash = bcrypt.hashSync(req.body.password, 10);
 
     try {
-
-        const user = ({
+        const user = {
             nickname: req.body.nickname,
             email: req.body.email,
-            password: hash,
-            number_namekoins: 0,
-            number_transactions: 0,
-            rol: 'Usuario'
-        });
+            password: hash
+        };
 
-        const userDB = await userModel.create(user);
+        const userModelInstance = new userModel(user);
 
-        return res.status(200).json({
-            message: 'El usuario se ha creado correctamente',
-            userDB
-        })
+        await userModelInstance.validate();
+
+        const nicknameExists = await userModel.findOne({ nickname: user.nickname });
+        const emailExists = await userModel.findOne({ email: user.email });
+
+        if (nicknameExists) {
+            return res.status(400).send({ message: 'El nombre de usuario ya está en uso' });
+        }
+
+        if (emailExists) {
+            return res.status(400).send({ message: 'El correo electrónico ya está en uso' });
+        }
+
+        if (req.body.password.length < 6) {
+            return res.status(400).send({ message: 'La contraseña debe tener al menos 5 caracteres' })
+        }
+
+        await userModel.create(user);
+        return res.status(200).send({ message: 'El usuario se ha creado correctamente' })
 
     } catch (err) {
-        return res.status(500).json({
-            message: 'Error al crear el usuario',
-            err
-        })
-    }
-}
+        if (err.name === 'ValidationError') {
+            const validationErrors = Object.values(err.errors).map(error => error.message);
+            return res.status(400).json({ message: validationErrors });
+        }
 
+        return res.status(500).json({
+            message: 'Ha ocurrido un error al crear el usuario',
+        });
+    }
+};
+
+
+// Login del usuario
 const login = async (req, res) => {
 
     const user = await userModel.findOne({
@@ -63,7 +80,7 @@ const login = async (req, res) => {
     })
 }
 
-
+//Recuperar contraseña
 const recoveryPassword = async (req, res) => {
 
     const code = generateCode()

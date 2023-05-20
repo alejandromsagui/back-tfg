@@ -1,6 +1,8 @@
 const Videogame = require('../models/videogameModel');
-const {uploadImage} = require('../helpers/upload')
+const { uploadImage } = require('../helpers/upload')
 const { decodeToken } = require('./authController')
+const userModel = require('../models/usuarioModel')
+const genresModel = require('../models/genresModel')
 const verifyToken = require('../middlewares/validate-token')
 
 const getVideogames = async (req, res) => {
@@ -27,7 +29,7 @@ const uploadVideogameImage = async (req, res, next) => {
         console.log('Valor de urlCover: ' + urlCover);
         return urlCover
     } catch (error) {
-        console.log(error);
+
     }
 }
 const newVideogame = async (req, res) => {
@@ -36,30 +38,49 @@ const newVideogame = async (req, res) => {
         const url = await uploadVideogameImage(req)
         console.log('Url desde newVideogame: ' + url);
 
-            if (!url) {
-                console.log('No hay url');
-            }
-            const videogame = {
-                name: req.body.name,
-                description: req.body.description,
-                image: url,
-                genre: req.body.genre,
-                platform: req.body.platform,
-                price: req.body.price,
-                userId: req.user.id,
-                nickname: req.user.nickname,
-                status: ''
-            };
+        if (!url) {
+            console.log('No hay url');
+        }
+        const videogame = {
+            name: req.body.name,
+            description: req.body.description,
+            image: url,
+            genre: req.body.genre,
+            platform: req.body.platform,
+            price: req.body.price,
+            userId: req.user.id,
+            nickname: req.user.nickname,
+            status: ''
+        };
 
-            const videogameDB = await Videogame.create(videogame);
 
-            return res.status(200).json({
-                message: 'El videojuego se ha creado correctamente',
-                videogameDB,
-            });
-            
+        // const videogameDB = await Videogame.create(videogame);
+
+        if (videogame.price <= 0) {
+            return res.status(400).send({ message: 'El precio debe ser mayor a 0' })
+        }
+
+//         const genresCursor = genresModel.find({ genres: videogame.genre });
+//         const genres = await genresCursor.exec();
+// console.log('Genres:', genres);
+//         const genresArray = await genresCursor.exec();
+
+//         console.log(genresArray);
+//         if (genresArray.length === 0) {
+//             return res.status(400).send({ message: 'Género no disponible' });
+//         }
+
+        await Videogame.validate(videogame);
+        return res.status(200).json({
+            message: 'El videojuego se ha creado correctamente'
+        });
+
     } catch (error) {
         console.log(error);
+        if (error.name === 'ValidationError') {
+            const validationErrors = Object.values(error.errors).map(error => error.message);
+            return res.status(400).json({ message: validationErrors });
+        }
         res.status(500).json({ message: 'Error al decodificar el token' });
     }
 };

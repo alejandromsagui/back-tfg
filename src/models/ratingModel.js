@@ -2,21 +2,21 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const ratingSchema = mongoose.Schema({
-    rating: { type: Number, min: [1], max: [5], required: true },
-    comment: { type: String, required: true },
-    date: { type: String, required: true },
+    rating: { type: Number, required: [true, 'La puntuación es obligatoria']},
+    comment: { type: String, required: [true, 'El comentario es obligatorio']},
+    date: { type: String, required: [true, 'La fecha es obligatoria'] },
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'Users',
-        required: true
+        required: [true, 'El id es obligatorio']
     },
-    nickname: { type: String },
+    nickname: { type: String, required: [true, 'El nombre de usuario es obligatorio'] },
     idUserProfile: {
         type: Schema.Types.ObjectId,
         ref: 'Users',
-        required: true
+        required: [true, 'El id es obligatorio']
     },
-    nicknameUserProfile: { type: String, required: true }
+    nicknameUserProfile: { type: String, required: [true, 'El nombre de usuario es obligatorio'] }
 }, {
     timestamps: true
 });

@@ -1,4 +1,5 @@
 const rechargeModel = require("../models/rechargeModel")
+const namekoinsModel = require("../models/namekoinModel")
 const axios = require("axios");
 require('dotenv').config({ path: '.env' });
 var nickname = ''
@@ -34,6 +35,9 @@ const createOrder = async (req, res) => {
             }
         }
 
+        if(namekoinsModel.quantity !== req.body.quantity){
+            return res.status(400).send({ message: 'Cantidad para recargar inválida'})
+        }
         const params = new URLSearchParams()
         params.append("grant_type", "client_credentials")
 

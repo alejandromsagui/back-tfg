@@ -1,18 +1,24 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const namekoinSchema = new mongoose.Schema({
-    amount: {type: Number},
-    transactionType: { type: String, enum: ['Ganancia', 'Recarga']},
-    userId: {
+const namekoinsSchema = new mongoose.Schema({
+    quantity: { type: Number, required: true, validate: {
+        validator: function (value) {
+            return [10, 25, 40].includes(value);
+        },
+        message: 'Las únicas opciones disponibles para la recarga son 10€, 25€ o 40€'
+    }
+},
+    date: { type: String, required: true},
+    rechargeId: {
         type: Schema.Types.ObjectId,
-        ref: 'Users',
+        ref: 'Recharge',
         required: true
-    },
-}, { 
+    }
+}, {
     timestamps: true
-})
+});
 
-const Namekoins = new mongoose.model('Namekoins', namekoinSchema);
+const namekoins = mongoose.model('Namekoins', namekoinsSchema);
 
-module.exports = Namekoins;
+module.exports = namekoins;
