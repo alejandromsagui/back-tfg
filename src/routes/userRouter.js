@@ -17,5 +17,6 @@ userRouter.put('/updatePassword/:nickname', verifyToken, userController.updatePa
 userRouter.put('/updateNickname/:nickname', verifyToken, userController.updateNickname)
 userRouter.put('/updateEmail/:email', verifyToken, userController.updateEmail)
 userRouter.delete('/deleteUser/:id', verifyToken, userController.deleteUser);
+// userRouter.get('/chat', userController.chat)
 
 module.exports = userRouter;

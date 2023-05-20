@@ -83,13 +83,13 @@ app.use(ratingRouter);
 
 io.on('connection', (socket) => {
     console.log('Un usuario se ha conectado');
-
+  
     socket.on('chat message', (msg) => {
-        console.log('message: ' + msg.text);
-        io.emit('chat message', msg);
+      console.log('message: ' + msg.message.text);
+      io.emit('chat message', msg.message.text);
     });
-
+  
     socket.on('disconnect', () => {
-        console.log('Un usuario se ha desconectado');
+      console.log('Un usuario se ha desconectado');
     });
-});
+  });
