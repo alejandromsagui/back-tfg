@@ -13,13 +13,21 @@ const port = process.env.PORT || 3000;
 const { multerMid } = require('./middlewares/multer')
 const { reduceImageSize } = require('./middlewares/multer')
 const errorHandler = require('./middlewares/errorHandler')
-
 const storage = require("./services/cloud")
 const bucket = storage.bucket('namekiansgames')
 const { format } = require('util');
+const http = require('http');
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+    cors: {
+        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 //Servidor en escucha
-app.listen(port, () => {
+server.listen(port, () => {
     console.log('Servidor corriendo en el puerto ' + port);
 });
 
@@ -33,6 +41,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(multerMid.single('image'))
 app.use(reduceImageSize)
 app.use(errorHandler)
+
 //CORS
 app.use(cors({
     origin: true,
@@ -72,3 +81,15 @@ app.use(paymentRouter);
 app.use(transactionRouter);
 app.use(ratingRouter);
 
+io.on('connection', (socket) => {
+    console.log('Un usuario se ha conectado');
+
+    socket.on('chat message', (msg) => {
+        console.log('message: ' + msg.text);
+        io.emit('chat message', msg);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Un usuario se ha desconectado');
+    });
+});
