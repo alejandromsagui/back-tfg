@@ -5,32 +5,40 @@ const blockUser = async (req, res) => {
   try {
     const username = req.params.nickname;
 
-    const updatedUser = await userModel.findOneAndUpdate(
-      { nickname: username },
-      { blocked: true },
-      { new: true }
-    );
+    const user = await userModel.findOne({ nickname: req.user.nickname})
+    const isAdmin = user.rol;
 
-    if (!updatedUser) {
-      return res.status(400).json({ error: "Error al bloquear al usuario" });
+    if(isAdmin === "Administrador"){
+        const updatedUser = await userModel.findOneAndUpdate(
+            { nickname: username },
+            { blocked: true },
+            { new: true }
+          );
+          
+          if (!updatedUser) {
+            return res.status(400).send({ error: "Error al bloquear al usuario" });
+          }
+      
+          const report = new reportModel({
+            user: updatedUser._id,
+            nickname: updatedUser.nickname,
+            videogame: null, 
+          });
+      
+          await report.save();
+      
+          return res
+            .status(200)
+            .json({ message: "Usuario bloqueado y reporte creado" });
+    } else {
+        return res.status(403).send({message: "No estás autorizado"})
     }
 
-    const report = new reportModel({
-      user: updatedUser._id,
-      nickname: updatedUser.nickname,
-      videogame: null, 
-    });
-
-    await report.save();
-
-    return res
-      .status(200)
-      .json({ message: "Usuario bloqueado y reporte creado" });
   } catch (error) {
     console.log("Error: " + error);
     return res
       .status(500)
-      .json({ error: "Error al bloquear al usuario" });
+      .send({ error: "Error al bloquear al usuario" });
   }
 };
 module.exports = { blockUser };
