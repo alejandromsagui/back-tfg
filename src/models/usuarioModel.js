@@ -41,7 +41,9 @@ const userSchema = new mongoose.Schema({
     },
     number_namekoins: { type: Number, min: 0, default: 0 },
     rol: { type: String, enum: ['Administrador', 'Usuario'], default: 'Usuario' },
-    blocked: {type: Boolean, default: false}
+    blocked: {type: Boolean, default: false},
+    numReportsVideogames: {type: Number, default: 0},
+    numReports: {type: Number, default: 0}
 }, {
     timestamps: true
 });

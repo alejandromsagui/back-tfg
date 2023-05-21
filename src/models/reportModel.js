@@ -11,6 +11,8 @@ const reportSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Videogames",
   },
+  nameVideogame: { type: String, required: true},
+  owner: { type: String, required: true},
   date: {
     type: String,
     default: new Date().toLocaleString("es-ES"),
