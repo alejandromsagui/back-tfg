@@ -16,6 +16,7 @@ const errorHandler = require('./middlewares/errorHandler')
 const storage = require("./services/cloud")
 const bucket = storage.bucket('namekiansgames')
 const { format } = require('util');
+const reportRouter = require("./routes/reportRouter")
 const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
@@ -80,6 +81,7 @@ app.use(authRouter);
 app.use(paymentRouter);
 app.use(transactionRouter);
 app.use(ratingRouter);
+app.use(reportRouter)
 
 io.on('connection', (socket) => {
     console.log('Un usuario se ha conectado');

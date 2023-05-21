@@ -40,7 +40,8 @@ const userSchema = new mongoose.Schema({
         required: [true, 'La contraseña es obligatoria']
     },
     number_namekoins: { type: Number, min: 0, default: 0 },
-    rol: { type: String, enum: ['Administrador', 'Usuario'], default: 'Usuario' }
+    rol: { type: String, enum: ['Administrador', 'Usuario'], default: 'Usuario' },
+    blocked: {type: Boolean, default: false}
 }, {
     timestamps: true
 });
