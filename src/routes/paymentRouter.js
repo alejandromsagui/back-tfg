@@ -1,6 +1,5 @@
 const express = require('express');
 const verifyToken = require("../middlewares/validate-token")
-const checkTokenExpiration = require("../middlewares/expirationToken")
 const paymentRouter = express.Router();
 const paymentController = require('../controllers/paymentController');
 

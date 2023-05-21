@@ -90,8 +90,11 @@ io.on('connection', (socket) => {
       console.log('message: ' + msg.message.text);
       io.emit('chat message', msg.message.text);
     });
-  
+
+
     socket.on('disconnect', () => {
       console.log('Un usuario se ha desconectado');
     });
   });
+
+app.set('io', io)
