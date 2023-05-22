@@ -2,8 +2,8 @@ const reportModel = require("../models/reportModel");
 const userModel = require("../models/usuarioModel");
 const videogameModel = require("../models/videogameModel");
 const notificationModel = require("../models/nofitifactionsModel")
-
 const io = require("../index");
+
 const blockUser = async (req, res) => {
   try {
     const username = req.params.nickname;

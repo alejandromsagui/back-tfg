@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const transporter = require("../services/mailer");
 const { generateCode } = require("../services/generate-code");
-const verifyToken = require("../middlewares/validate-token");
 require("dotenv").config({ path: ".env" });
+
 
 //Función que valida y registra al usuario si cumple con las condiciones establecidas
 const newUser = async (req, res) => {
@@ -43,9 +43,11 @@ const newUser = async (req, res) => {
     }
 
     await userModel.create(user);
+
     return res
       .status(200)
       .send({ message: "El usuario se ha creado correctamente" });
+
   } catch (err) {
     if (err.name === "ValidationError") {
       const validationErrors = Object.values(err.errors).map(
@@ -54,6 +56,7 @@ const newUser = async (req, res) => {
       return res.status(400).json({ message: validationErrors });
     }
 
+    console.log(err);
     return res.status(500).json({
       message: "Ha ocurrido un error al crear el usuario",
     });
@@ -200,5 +203,5 @@ module.exports = {
   recoveryPassword,
   decodeToken,
   updateToken,
-  parseJwt,
+  parseJwt
 };

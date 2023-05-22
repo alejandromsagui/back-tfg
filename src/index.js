@@ -17,6 +17,8 @@ const storage = require("./services/cloud")
 const bucket = storage.bucket('namekiansgames')
 const { format } = require('util');
 const reportRouter = require("./routes/reportRouter")
+const authController = require("./controllers/authController")
+const userModel = require("./models/usuarioModel")
 const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
@@ -74,6 +76,8 @@ app.post('/upload', async (file) => {
     }
 })
 
+app.set('io', io)
+
 //Rutas
 app.use(userRouter);
 app.use(videogameRouter);
@@ -83,18 +87,40 @@ app.use(transactionRouter);
 app.use(ratingRouter);
 app.use(reportRouter)
 
+// const countDocuments = async () => {
+//     const io = global.io; // Accede a la instancia de Socket.io globalmente
+//     try {
+//       const count = await userModel.countDocuments({});
+//       io.emit('documentCount', count);
+//       setInterval(countDocuments, count)
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
 io.on('connection', (socket) => {
     console.log('Un usuario se ha conectado');
+  
+    // Enviar mensaje de conexión a todos los clientes
+    const mensaje = 'Se ha establecido la conexión con el servidor';
+    io.emit('conexion', mensaje);
+    console.log('Mensaje de conexión enviado a todos los clientes: ', mensaje);
+  
+    // Enviar número de usuarios activos a todos los clientes
+    io.emit('userCount', io.engine.clientsCount);
+    console.log('Número de usuarios activos enviado a todos los clientes: ', io.engine.clientsCount);
   
     socket.on('chat message', (msg) => {
       console.log('message: ' + msg.message.text);
       io.emit('chat message', msg.message.text);
     });
-
-
+  
     socket.on('disconnect', () => {
       console.log('Un usuario se ha desconectado');
+      io.emit('userCount', io.engine.clientsCount);
     });
   });
+  
 
-app.set('io', io)
+
+
