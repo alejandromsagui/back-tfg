@@ -96,7 +96,7 @@ const login = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: '1h' }
     );
 
     res.header("Authorization", token).json({
@@ -187,11 +187,12 @@ const parseJwt = (req, res) => {
   console.log("Decode: ", decode);
   const expirationTimeInSeconds = decode.exp;
   const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
   if (expirationTimeInSeconds < currentTimeInSeconds) {
     res.status(401).json({ error: "Token expirado" });
-  } else {
-    res.status(200).json({ token, expirationTime: expirationTimeInSeconds });
-  }
+  } 
+
+
 };
 module.exports = {
   newUser,

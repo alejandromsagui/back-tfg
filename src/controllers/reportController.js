@@ -55,11 +55,13 @@ const reportGame = async (req, res) => {
       await userModel.updateOne({ nickname: nickname }, { blocked: true });
 
       const message = `El usuario ${nickname} ha sido bloqueado por denunciar de manera frecuente`
-      const io = req.app.get("io");
-      io.emit(
-        "adminNotification",
-        message
-      );
+
+        const io = req.app.get("io");
+        io.emit(
+          "adminNotification",
+          message
+        )
+      
 
       const notification = new notificationModel({
         type: "Reporte",

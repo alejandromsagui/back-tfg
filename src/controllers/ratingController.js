@@ -1,5 +1,6 @@
 const ratingModel = require('../models/ratingModel')
 const userModel = require('../models/usuarioModel')
+
 const getRatings = async (req, res) => {
 
     const nickname = req.params.nickname
@@ -12,6 +13,29 @@ const getRatings = async (req, res) => {
             status: 'fail',
             message: 'Error al visualizar las valoraciones',
             err
+        });
+    }
+}
+
+const ratings = async (req, res) => {
+    try {
+        const ratings = await ratingModel.find();
+
+        if(!ratings){
+            return res.status(400).send({ message: 'Error al visualizar las valoraciones'})
+        }
+
+        const dataRating = ratings.map(data => ({
+            nickname: data.nickname, 
+            nicknameUserProfile: data.nicknameUserProfile,
+            rating: data.rating, 
+            comment: data.comment
+        }));
+
+        return res.status(200).send({ dataRating})
+    } catch (err) {
+        res.status(500).json({
+            message: 'Error al visualizar las valoraciones',
         });
     }
 }
@@ -68,4 +92,4 @@ const newRating = async (req, res) => {
     }
 }
 
-module.exports = { getRatings, newRating }
+module.exports = { getRatings, newRating, ratings }
