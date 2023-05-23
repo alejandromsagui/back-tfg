@@ -8,6 +8,8 @@ const uploadImage = async (file) => {
         throw new Error('La imagen es obligatoria');
     }
 
+const bucket = storage.bucket('namekiansgames')
+
     try {
         const { originalname, buffer } = file;
         const fileName = uuidv4();

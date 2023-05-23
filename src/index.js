@@ -42,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Multer
 app.use(multerMid.single('image'))
-app.use(reduceImageSize)
+// app.use(reduceImageSize)
 app.use(errorHandler)
 
 //CORS
@@ -51,7 +51,7 @@ app.use(cors({
     credentials: true
 }))
 
-app.post('/upload', async (file) => {
+app.post('/uploadkk', async (file) => {
     try {
         const { originalname, buffer } = file
         const blob = bucket.file('Videojuegos/' + originalname)

@@ -13,7 +13,7 @@ var videogameSchema = new mongoose.Schema({
             message: 'La imagen es obligatoria',
         },
     },
-    // genre: { type: Schema.Types.ObjectId, ref: 'Genres', required: [true, 'El género es obligatorio'] },
+    genre: { type: Array, required: [true, 'El género es obligatorio'] },
     platform: {
         type: String, required: [true, 'La plataforma es obligatoria'],
         validate: {
