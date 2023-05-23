@@ -6,8 +6,24 @@ require('dotenv').config({ path: '.env' });
 
 const getUsers = async (req, res) => {
     try {
-        const users = await User.find({}, {nickname: 1, email: 1});
-        const transformedUsers = users.map(user => ({nickname: user.nickname, email: user.email}));
+        const users = await User.find({}, { nickname: 1, email: 1 });
+        const transformedUsers = users.map(user => ({ nickname: user.nickname, email: user.email }));
+        res.status(200).json({
+            status: 'ok',
+            users: transformedUsers
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'fail',
+            message: 'Error al visualizar los usuarios',
+        });
+    }
+}
+
+const getUsersAdmin = async (req, res) => {
+    try {
+        const users = await User.find({}, { nickname: 1, email: 1, blocked: 1 });
+        const transformedUsers = users.map(user => ({ nickname: user.nickname, email: user.email, blocked: user.blocked }));
         res.status(200).json({
             status: 'ok',
             users: transformedUsers
@@ -55,9 +71,9 @@ const deleteUser = async (req, res) => {
             })
         }
 
-        if(req.user.id === user.id){
+        if (req.user.id === user.id) {
             return res.status(200).send({
-                message: 'El usuario ha sido eliminado correctamente'
+                message: 'Tu cuenta ha sido eliminado correctamente'
             })
         }
 
@@ -77,20 +93,20 @@ const updateNickname = async (req, res) => {
         const validPassword = await bcrypt.compare(req.body.password, user.password);
 
         if (!update.nickname || update.nickname === "") {
-            return res.status(400).json({message: "Debe proporcionar un nombre de usuario válido"})
+            return res.status(400).json({ message: "Debe proporcionar un nombre de usuario válido" })
         }
 
         if (update.nickname === username) {
-            return res.status(400).json({message: "El nombre de usuario debe ser diferente al actual"})
+            return res.status(400).json({ message: "El nombre de usuario debe ser diferente al actual" })
         }
-        if(!validPassword) return res.status(400).json({message: "La contraseña no es válida"})
+        if (!validPassword) return res.status(400).json({ message: "La contraseña no es válida" })
 
         const existingUser = await User.findOne({ nickname: update.nickname });
 
         if (existingUser) {
-            return res.status(400).json({message: "El nombre de usuario ya está en uso"})
+            return res.status(400).json({ message: "El nombre de usuario ya está en uso" })
         }
-        const updatedUser = await User.findOneAndUpdate({nickname: username}, update, { new: true });
+        const updatedUser = await User.findOneAndUpdate({ nickname: username }, update, { new: true });
 
         return res.status(200).json({
             message: 'El nombre de usuario se ha actualizado correctamente'
@@ -111,22 +127,22 @@ const updateEmail = async (req, res) => {
         const validPassword = await bcrypt.compare(req.body.password, user.password);
 
         if (!update.email || update.email === "") {
-            return res.status(400).json({message: "Debe proporcionar un correo válido"})
+            return res.status(400).json({ message: "Debe proporcionar un correo válido" })
         }
-        
+
         if (update.email === email) {
-            return res.status(400).json({message: "El correo debe ser diferente al actual"})
+            return res.status(400).json({ message: "El correo debe ser diferente al actual" })
         }
-        if(!validPassword) return res.status(400).json({message: "La contraseña no es válida"})
+        if (!validPassword) return res.status(400).json({ message: "La contraseña no es válida" })
 
         const existingEmail = await User.findOne({ email: update.email });
 
         if (existingEmail) {
-            return res.status(400).json({message: "El correo proporcionado ya está en uso"})
+            return res.status(400).json({ message: "El correo proporcionado ya está en uso" })
         }
 
-        
-        await User.findOneAndUpdate({email: email}, update, { new: true });
+
+        await User.findOneAndUpdate({ email: email }, update, { new: true });
 
         return res.status(200).json({
             message: 'El correo se ha actualizado correctamente'
@@ -143,7 +159,7 @@ const updatePassword = async (req, res) => {
         const username = req.params.nickname;
         const oldPassword = req.body.oldPassword;
         const newPassword = req.body.newPassword;
-        
+
         const user = await User.findOne({ nickname: username });
 
         if (!user) {
@@ -159,7 +175,7 @@ const updatePassword = async (req, res) => {
             });
         }
 
-        if(oldPassword === newPassword) return res.status(400).json({message: 'La contraseña nueva no puede coincidir con la antigua'})
+        if (oldPassword === newPassword) return res.status(400).json({ message: 'La contraseña nueva no puede coincidir con la antigua' })
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         const update = { password: hashedPassword };
@@ -178,7 +194,7 @@ const updatePassword = async (req, res) => {
 const getNickname = async (req, res) => {
     try {
         const username = req.params.nickname;
-        const user = await User.findOne({nickname: username})
+        const user = await User.findOne({ nickname: username })
 
         if (!user) {
             return res.status(400).send({
@@ -196,10 +212,10 @@ const getNickname = async (req, res) => {
     }
 }
 
-const getNamekoins = async(req, res) => {
+const getNamekoins = async (req, res) => {
     try {
         const username = req.params.nickname;
-        const user = await User.findOne({nickname: username})
+        const user = await User.findOne({ nickname: username })
 
         if (!user) {
             return res.status(400).send({
@@ -209,11 +225,11 @@ const getNamekoins = async(req, res) => {
 
         console.log('Valor de usuario del middleware: ', req.user.nickname);
         console.log('Valor de usuario: : ', req.user.nickname);
-        if((req.user.nickname === user.nickname)){
+        if ((req.user.nickname === user.nickname)) {
             return res.status(200).send({
                 coins: user.number_namekoins
             })
-        }else{
+        } else {
             return res.status(401).send({
                 message: 'Algo ha ido mal'
             })
@@ -226,10 +242,10 @@ const getNamekoins = async(req, res) => {
     }
 }
 
-const getPermission = async (req, res ) => {
+const getPermission = async (req, res) => {
     try {
         const username = req.params.nickname;
-        const user = await User.findOne({nickname: username})
+        const user = await User.findOne({ nickname: username })
 
         if (!user) {
             return res.status(404).send({
@@ -237,7 +253,7 @@ const getPermission = async (req, res ) => {
             })
         }
 
-        if(req.user.nickname === user.nickname){
+        if (req.user.nickname === user.nickname) {
             if (user.rol === 'Administrador') {
                 return res.status(200).send({
                     isAdmin: true
@@ -247,12 +263,12 @@ const getPermission = async (req, res ) => {
                     isAdmin: false
                 })
             }
-        }else {
+        } else {
             return res.status(401).semd({
                 message: 'Algo ha ido mal'
             })
         }
-      
+
     } catch (error) {
         return res.status(500).json({
             message: 'Algo ha ido mal'
@@ -263,15 +279,15 @@ const getPermission = async (req, res ) => {
 const getEmail = async (req, res) => {
     try {
         const email = req.params.email;
-        const user = await User.findOne({email: email})
+        const user = await User.findOne({ email: email })
 
         if (!user) {
             return res.status(404).send({
                 message: 'Algo ha ido mal'
             })
         }
-        
-        if(user.email === req.user.email){
+
+        if (user.email === req.user.email) {
             return res.status(200).send({
                 user: user.email
             })
@@ -280,7 +296,7 @@ const getEmail = async (req, res) => {
                 message: 'Algo ha ido mal'
             })
         }
-      
+
     } catch (error) {
         return res.status(500).json({
             message: 'Algo ha ido mal'
@@ -291,7 +307,7 @@ const getEmail = async (req, res) => {
 const getUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = await User.findOne({id: id})
+        const user = await User.findOne({ id: id })
 
         if (!user) {
             return res.status(404).send({
@@ -300,7 +316,7 @@ const getUser = async (req, res) => {
         }
 
         return res.status(200).send({
-          user: user.id
+            user: user.id
         })
 
     } catch (error) {
@@ -322,10 +338,10 @@ const updateNamekoins = async (req, res) => {
             });
         }
 
-        console.log('Id de usuario desde middleware: '+req.user.id);
-        console.log('Id de usuario'+user._id);
-        
-        if(req.user.id === user.id){
+        console.log('Id de usuario desde middleware: ' + req.user.id);
+        console.log('Id de usuario' + user._id);
+
+        if (req.user.id === user.id) {
             await User.findByIdAndUpdate(id, update, { new: true });
 
             return res.status(200).json({
@@ -333,9 +349,9 @@ const updateNamekoins = async (req, res) => {
                 coins: user.number_namekoins
             })
         } else {
-            return res.status(400).send({ message: 'Error al actualizar el número de Namekoins'})
+            return res.status(400).send({ message: 'Error al actualizar el número de Namekoins' })
         }
-     
+
     } catch (err) {
         return res.status(500).json({
             message: 'Error al actualizar el número de Namekoins',
@@ -355,4 +371,23 @@ const uploadAvatarImage = async (req, res, next) => {
     }
 }
 
-module.exports = { getUsers, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }
+const deleteUserByAdmin = async (req, res) => {
+    try {
+        const username = req.params.nickname;
+
+        const user = await User.findOneAndDelete({ nickname: username })
+
+        console.log('Usuario devuelto por user: ', user);
+
+        if (!user) {
+            return res.status(400).send({ message: 'Algo ha ido mal' })
+        }
+
+        return res.status(200).send({ message: 'Usuario eliminado correctamente' })
+    } catch (error) {
+        
+        return res.status(500).send({ message: 'Algo ha ido mal' })
+    }
+}
+
+module.exports = { getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }

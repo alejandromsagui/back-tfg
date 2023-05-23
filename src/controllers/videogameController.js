@@ -54,7 +54,7 @@ const newVideogame = async (req, res) => {
         };
 
 
-        // const videogameDB = await Videogame.create(videogame);
+        const videogameDB = await Videogame.create(videogame);
 
         if (videogame.price <= 0) {
             return res.status(400).send({ message: 'El precio debe ser mayor a 0' })
