@@ -21,6 +21,27 @@ const getVideogames = async (req, res) => {
     });
   }
 };
+const getGenres = async (req, res) => {
+  try {
+    const genres = await genresModel.find();
+    const test = []
+
+    genres.forEach(element => {
+      test.push(element.genre)
+    })
+    return res.status(200).send({
+      status: 'ok',
+      test
+    })
+  } catch (err) {
+    return res.status(500).json({
+      status: "fail",
+      message: "Error al visualizar los géneros",
+      err,
+    });
+  }
+};
+
 const uploadVideogameImage = async (req, res, next) => {
   try {
     const myFile = req.file;
@@ -151,4 +172,5 @@ module.exports = {
   updateVideogame,
   deleteVideogame,
   uploadVideogameImage,
+  getGenres
 };
