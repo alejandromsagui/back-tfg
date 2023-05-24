@@ -21,35 +21,6 @@ const getVideogames = async (req, res) => {
     });
   }
 };
-const getGenres = async (req, res) => {
-  try {
-    const genres = await genresModel.find();
-    // console.log('genres ', typeof genres);
-
-
-   const genresNames = genres.map((v) =>  v.genre);
-
-    // let testA = [];
-    // const genresNames = genres.forEach((element) => {
-    //   testA.push(element)
-    // })
-    // testA.forEach(e => {
-    //   console.log("Dime esto", e.genre);
-    // });
-
-    return res.status(200).send({
-      status: 'ok',
-      genres: genresNames
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      status: "fail",
-      message: "Error al visualizar los géneros",
-      err,
-    });
-  }
-};
 
 const uploadVideogameImage = async (req, res, next) => {
   try {
@@ -175,6 +146,5 @@ module.exports = {
   newVideogame,
   updateVideogame,
   deleteVideogame,
-  uploadVideogameImage,
-  getGenres
+  uploadVideogameImage
 };

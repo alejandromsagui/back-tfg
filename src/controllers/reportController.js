@@ -1,8 +1,36 @@
 const reportModel = require("../models/reportModel");
 const userModel = require("../models/usuarioModel");
 const videogameModel = require("../models/videogameModel");
-const notificationModel = require("../models/nofitifactionsModel")
+const notificationModel = require("../models/notificationModel");
 const io = require("../index");
+
+const getReports = async (req, res) => {
+  try {
+    const reports = await notificationModel.find();
+    const userIds = reports.map((report) => report.user);
+
+    const users = await userModel.find({ _id: { $in: userIds } });
+    const userIdToNickname = users.reduce((acc, user) => {
+      acc[user._id.toString()] = user.nickname;
+      return acc;
+    }, {});
+
+    const getAllReports = reports.map((report) => ({
+      user: userIdToNickname[report.user.toString()] || "",
+      date: report.date,
+      type: report.type,
+      message: report.message,
+      show: report.show,
+    }));
+
+    res.status(200).json({ getAllReports });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Error al visualizar los usuarios",
+    });
+  }
+};
 
 const blockUser = async (req, res) => {
   try {
@@ -54,15 +82,13 @@ const reportGame = async (req, res) => {
 
       await userModel.updateOne({ nickname: nickname }, { blocked: true });
 
-      const message = `El usuario ${nickname} ha sido bloqueado por denunciar de manera frecuente`
+      //Modificar esto para que solo lo pueda ver el admin
+      const message = `El usuario ${nickname} ha sido bloqueado por denunciar de manera frecuente`;
 
-        const io = req.app.get("io");
-        io.emit(
-          "adminNotification",
-          message
-        )
-      
+      const io = req.app.get("io");
+      io.emit("adminNotification", message);
 
+      ////
       const notification = new notificationModel({
         type: "Reporte",
         user: req.user.id,
@@ -117,4 +143,26 @@ const reportGame = async (req, res) => {
     }
   }
 };
-module.exports = { blockUser, reportGame };
+
+const newRecommendation = async (req, res) => {
+  try {
+    const recommendation = {
+      type: "Recomendación",
+      user: req.user.id,
+      nickname: req.user.nickname,
+      message: req.body.message,
+    };
+
+    if (!recommendation) {
+      return res.status(400).send({ message: "Algo ha ido mal" });
+    }
+    notificationModel.create(recommendation);
+
+    return res.status(200).send({
+      message: "Gracias por tu aportación. La recomendación ha sido enviada",
+    });
+  } catch (error) {
+    return res.status(500).send({ message: "Algo ha ido mal" });
+  }
+};
+module.exports = { blockUser, reportGame, getReports, newRecommendation };

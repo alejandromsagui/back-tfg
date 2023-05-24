@@ -9,18 +9,24 @@ const notificationsModel = mongoose.Schema({
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'Users',
-    required: [true, "El id del usuario es obligatorio"]
+    ref: "Users",
+    required: [true, "El id del usuario es obligatorio"],
   },
+  nickname: { type: String, required: [true, "El nombre de usuario es obligatorio"]},
   message: {
     type: String,
     required: [true, "El mensaje es obligatorio"],
   },
   date: {
     type: String,
-    default: new Date().toLocaleString("es-ES"),
+    default: new Date().toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }),
     required: [true, "La fecha es obligatoria"],
-  }
+  },
+  show: { type: Boolean },
 });
 
 const Notification = mongoose.model("Notifications", notificationsModel);

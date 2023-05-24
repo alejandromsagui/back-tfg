@@ -1,4 +1,10 @@
 const mongoose = require("mongoose");
+const videogameModel = require("../models/videogameModel")
+const ratingsModel = require("../models/ratingModel")
+const reportsModel = require("../models/reportModel")
+const notificationsModel = require("./notificationModel")
+const rechargesModel = require("../models/rechargeModel")
+const transactionsModel = require("../models/transactionModel")
 
 var validateEmail = function (email) {
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -48,6 +54,17 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+
+userSchema.pre('remove', async function(next){
+    const userId = this._id;
+
+    await videogameModel.deleteMany({userId: userId })
+    await ratingsModel.deleteMany({userId: userId})
+    reportsModel.deleteMany({user: userId})
+    notificationsModel.deleteMany({user: userId})
+    rechargesModel.deleteMany({userId: userId})
+    
+})
 const User = mongoose.model('Users', userSchema);
 
 module.exports = User;
