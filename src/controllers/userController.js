@@ -131,9 +131,10 @@ const updateNickname = async (req, res) => {
             //   });
 
             return res.status(200)
-                .header('Authorization', `${token}`)
+                .header('Authorization', token)
                 .send({
-                    message: 'El nombre de usuario se ha actualizado correctamente'
+                    message: 'El nombre de usuario se ha actualizado correctamente',
+                    data: {token}
                 });
         } else {
             return res.status(400).send({ message: "El nombre de usuario debe ser superior a 3 caracteres" })
