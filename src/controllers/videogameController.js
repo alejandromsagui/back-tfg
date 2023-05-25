@@ -57,9 +57,23 @@ const newVideogame = async (req, res) => {
 
     const userGenres = videogame.genre.toLowerCase().split(',')
     const allGenresMatch = userGenres.every((userGenre) => genresNames.includes(userGenre));
-    
 
-    if(!allGenresMatch){
+    if(!videogame.name){
+      return res.status(400).send({ message: 'El título es obligatorio'})
+    }
+
+    if(!videogame.description){
+      return res.status(400).send({ message: 'La descripción es obligatoria'})
+    }
+
+    if(!videogame.platform){
+      return res.status(400).send({ message: 'La plataforma es obligatoria'})
+    }
+
+    if(!videogame.image){
+      return res.status(400).send({ message: 'La imagen es obligatoria'})
+    }
+    if(!allGenresMatch || !videogame.genre){
       return res.status(400).send({ message: 'El género no coincide'})
     }
 

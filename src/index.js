@@ -19,7 +19,9 @@ const { format } = require('util');
 const reportRouter = require("./routes/reportRouter")
 const authController = require("./controllers/authController")
 const userModel = require("./models/usuarioModel")
+const exportData = require("./services/export-data")
 const http = require('http');
+const verifyToken = require ('./middlewares/validate-token')
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
     cors: {
@@ -75,6 +77,16 @@ app.post('/uploadkk', async (file) => {
         throw error
     }
 })
+
+// app.get('/export', verifyToken, (req, res) => {
+//     try {
+//         exportData();
+//         res.status(200).send('La exportación de datos se ha realizado correctamente.');
+//     } catch (error) {
+//         res.status(500).send({ message: "Ha ocurrido un error al exportar los datos"})
+//     }
+
+//   });
 
 app.set('io', io)
 

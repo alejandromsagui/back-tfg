@@ -2,6 +2,11 @@ const User = require("../models/usuarioModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const uploadAvatar = require("../helpers/upload")
+const puppeteer = require("puppeteer");
+const path = require("path");
+const fs = require("fs");
+const downloadsFolder = require("downloads-folder");
+const axios = require("axios")
 require('dotenv').config({ path: '.env' });
 
 const getUsers = async (req, res) => {
@@ -457,6 +462,121 @@ const deleteUserByAdmin = async (req, res) => {
 
         return res.status(500).send({ message: 'Algo ha ido mal' })
     }
+
 }
 
-module.exports = { getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }
+const exportData = async(req, res) => {
+    try {
+        const transactions = await axios.get(`${process.env.HOST}/findTransaction/${req.user.nickname}`)
+        
+        const transactionsData = transactions.data;
+
+        let tableRows = '';
+        for (let i = 0; i < transactionsData.length; i++) {
+          const transaction = transactionsData[i];
+          const row = `
+            <tr>
+              <td>${transaction.videogame}</td>
+              <td>${transaction.nicknameBuyer === req.user.nickname ? 'Compra' : 'Venta'}</td>
+              <td>${transaction.price / 10}€</td>
+              <td>${transaction.date}</td>
+            </tr>
+          `;
+          tableRows += row;
+        }
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Factura Mensual</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+          }
+      
+          h1 {
+            text-align: center;
+          }
+      
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+      
+          th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+          }
+      
+          th {
+            background-color: #C62828;
+            color: #fff !important;
+          }
+          
+        </style>
+      </head>
+      <body>
+        <div style="display: flex; align-items: center;">
+          <img src="https://storage.googleapis.com/namekiansgames/Logo/logo.png" alt="Logo" style="width: 15%; height: auto; vertical-align: sub; margin-right: 20px; display: inline-block;">
+          <h4 style="font-size: 18px; display: inline-block; margin-bottom: 15px !important; margin-left: 10px;">Gracias por comprar en Namekians<span style="color: #C62828;">Games</span></h4>
+        </div>
+      
+        <h1 style="text-align: center; margin-top: 20px;">Factura mensual</h1>
+      
+        <table>
+          <thead>
+            <tr>
+              <th>Videojuego</th>
+              <th>Tipo de operación</th>
+              <th>Precio</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+          ${tableRows}
+        </tbody>
+        </table>
+        <sub style="margin-top: 50px !important;">Atentamente, el equipo de Namekians<span style="color: #C62828;">Games</span></sub>
+      </body>
+      </html>
+    `  
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+  
+    // Configurar el contenido HTML de la página
+    await page.setContent(htmlContent);
+  
+    // Generar el nombre de archivo y la ruta
+    const fileName = "transacciones.pdf";
+    let filePath = path.join(downloadsFolder(), fileName);
+    let counter = 1;
+  
+    // Verificar y modificar el nombre de archivo si ya existe
+    while (fs.existsSync(filePath)) {
+      const baseName = path.basename(fileName, path.extname(fileName));
+      const newName = `${baseName}(${counter})${path.extname(fileName)}`;
+      filePath = path.join(downloadsFolder(), newName);
+      counter++;
+    }
+  
+    // Guardar el archivo PDF en la carpeta de descargas del usuario
+    await page.pdf({ path: filePath, format: "A4", printBackground: true, preferCSSPageSize: true });
+  
+    // Establecer los encabezados adecuados
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+  
+    // Leer el archivo y enviarlo como respuesta
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
+  }
+}
+
+module.exports = { exportData, getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }
