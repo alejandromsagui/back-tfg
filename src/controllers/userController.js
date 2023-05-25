@@ -86,68 +86,126 @@ const deleteUser = async (req, res) => {
 
 const updateNickname = async (req, res) => {
     try {
-        const username = req.params.nickname;
-        const update = { nickname: req.body.nickname };
+        const username = req.user.nickname;
         const user = await User.findOne({ nickname: username })
+        const newNickname = req.body.nickname
 
         const validPassword = await bcrypt.compare(req.body.password, user.password);
 
-        if (!update.nickname || update.nickname === "") {
-            return res.status(400).json({ message: "Debe proporcionar un nombre de usuario válido" })
+        if (newNickname === username) {
+            return res.status(400).send({ message: "El nombre de usuario debe ser diferente al actual" })
         }
 
-        if (update.nickname === username) {
-            return res.status(400).json({ message: "El nombre de usuario debe ser diferente al actual" })
+        if (req.body.password === "") {
+            return res.status(400).send({ message: "La contraseña no puede estar vacía" })
         }
-        if (!validPassword) return res.status(400).json({ message: "La contraseña no es válida" })
 
-        const existingUser = await User.findOne({ nickname: update.nickname });
+        if (!validPassword) return res.status(400).send({ message: "La contraseña no es válida" })
 
-        if (existingUser) {
-            return res.status(400).json({ message: "El nombre de usuario ya está en uso" })
+        if (user.nickname !== newNickname) {
+            const existingUser = await User.findOne({ nickname: newNickname });
+            if (existingUser) {
+                return res.status(400).send({ message: "El nombre de usuario ya está en uso" })
+            }
         }
-        const updatedUser = await User.findOneAndUpdate({ nickname: username }, update, { new: true });
 
-        return res.status(200).json({
-            message: 'El nombre de usuario se ha actualizado correctamente'
-        });
+        if (!newNickname) {
+            return res.status(400).send({ message: "El nuevo nombre de usuario es obligatorio" })
+        }
+
+        if (newNickname.length > 3) {
+            await User.findOneAndUpdate({ nickname: username }, { nickname: newNickname }, { new: true });
+
+            const token = jwt.sign(
+                {
+                    id: user.id,
+                    nickname: newNickname,
+                    email: user.email,
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            //   res.header("Authorization", token).json({
+            //    token
+            //   });
+
+            return res.status(200)
+                .header('Authorization', `${token}`)
+                .send({
+                    message: 'El nombre de usuario se ha actualizado correctamente'
+                });
+        } else {
+            return res.status(400).send({ message: "El nombre de usuario debe ser superior a 3 caracteres" })
+        }
+
     } catch (err) {
-        return res.status(500).json({
+        console.log(err);
+        return res.status(500).send({
             message: 'Error al actualizar el usuario'
         });
     }
+}
+
+const isValidEmailRule = (val) => {
+    const emailPattern =
+        /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+    return emailPattern.test(val);
 };
+
 
 const updateEmail = async (req, res) => {
     try {
-        const email = req.params.email;
-        const update = { email: req.body.email };
+        const email = req.user.email;
         const user = await User.findOne({ email: email })
+        const newEmail = req.body.email;
+
+        if (req.body.password === "") {
+            return res.status(400).send({ message: "La contraseña no puede estar vacía" })
+        }
 
         const validPassword = await bcrypt.compare(req.body.password, user.password);
 
-        if (!update.email || update.email === "") {
-            return res.status(400).json({ message: "Debe proporcionar un correo válido" })
+        if (newEmail === email) {
+            return res.status(400).json({ message: "El correo electrónico no puede ser el mismo" })
         }
 
-        if (update.email === email) {
-            return res.status(400).json({ message: "El correo debe ser diferente al actual" })
-        }
         if (!validPassword) return res.status(400).json({ message: "La contraseña no es válida" })
 
-        const existingEmail = await User.findOne({ email: update.email });
+        if (!newEmail) {
+            return res.status(400).send({ message: "El nuevo correo electrónico es obligatorio" })
+        }
 
-        if (existingEmail) {
-            return res.status(400).json({ message: "El correo proporcionado ya está en uso" })
+        if (!isValidEmailRule(newEmail)) {
+            return res.status(400).send({ message: "El correo electrónico no tiene un válido" })
+        }
+        if (user.email !== newEmail) {
+            const existingEmail = await User.findOne({ email: newEmail })
+            if (existingEmail) {
+                return res.status(400).send({ message: "El correo electrónico ya está en uso" })
+            }
         }
 
 
-        await User.findOneAndUpdate({ email: email }, update, { new: true });
+        await User.findOneAndUpdate({ email: email }, { email: newEmail }, { new: true });
 
-        return res.status(200).json({
-            message: 'El correo se ha actualizado correctamente'
-        });
+        const token = jwt.sign(
+            {
+                id: user.id,
+                nickname: newEmail,
+                email: user.email,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        return res.status(200)
+            .header('Authorization', token)
+            .json({
+                message: 'El correo se ha actualizado correctamente'
+            });
     } catch (err) {
+        console.log(err);
         return res.status(500).json({
             message: 'Error al actualizar el correo'
         });
@@ -156,7 +214,7 @@ const updateEmail = async (req, res) => {
 
 const updatePassword = async (req, res) => {
     try {
-        const username = req.params.nickname;
+        const username = req.user.nickname;
         const oldPassword = req.body.oldPassword;
         const newPassword = req.body.newPassword;
 
@@ -169,6 +227,7 @@ const updatePassword = async (req, res) => {
         }
 
         const validPassword = await bcrypt.compare(oldPassword, user.password);
+
         if (!validPassword) {
             return res.status(400).send({
                 message: 'La contraseña antigua no es válida'
@@ -177,13 +236,22 @@ const updatePassword = async (req, res) => {
 
         if (oldPassword === newPassword) return res.status(400).json({ message: 'La contraseña nueva no puede coincidir con la antigua' })
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        const update = { password: hashedPassword };
-        await User.findOneAndUpdate({ nickname: username }, update, { new: true });
 
+        if(newPassword.length > 5){
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            const update = { password: hashedPassword };
+            await User.findOneAndUpdate({ nickname: username }, update, { new: true });
+
+            
         return res.status(200).json({
             message: 'La contraseña se ha actualizado correctamente'
         });
+        } else {
+            return res.status(400).json({
+                message: 'La nueva contraseña tiene que ser superior a 5 caracteres'
+            });
+        }
+
     } catch (err) {
         return res.status(500).json({
             message: 'Algo ha ido mal'
@@ -385,7 +453,7 @@ const deleteUserByAdmin = async (req, res) => {
 
         return res.status(200).send({ message: 'Usuario eliminado correctamente' })
     } catch (error) {
-        
+
         return res.status(500).send({ message: 'Algo ha ido mal' })
     }
 }

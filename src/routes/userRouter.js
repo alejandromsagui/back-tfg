@@ -14,9 +14,9 @@ userRouter.put('/uploadAvatarImage', userController.uploadAvatarImage)
 userRouter.put('/updateUser/:id', userController.updateUser);
 userRouter.put('/updateNamekoins/:id', verifyToken, userController.updateNamekoins);
 userRouter.get('/getUser/:id', userController.getUser)
-userRouter.put('/updatePassword/:nickname', verifyToken, userController.updatePassword);
-userRouter.put('/updateNickname/:nickname', verifyToken, userController.updateNickname)
-userRouter.put('/updateEmail/:email', verifyToken, userController.updateEmail)
+userRouter.put('/updatePassword', verifyToken, userController.updatePassword);
+userRouter.put('/updateNickname', verifyToken, userController.updateNickname)
+userRouter.put('/updateEmail', verifyToken, userController.updateEmail)
 userRouter.delete('/deleteUser/:id', verifyToken, userController.deleteUser);
 userRouter.delete('/deleteUserByAdmin/:nickname', verifyToken, isAdmin, userController.deleteUserByAdmin)
 // userRouter.get('/chat', userController.chat)
