@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer");
-const transactionController = require("../controllers/transactionController")
 const path = require("path");
 const fs = require("fs");
 const downloadsFolder = require("downloads-folder");
