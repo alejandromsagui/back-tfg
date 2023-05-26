@@ -3,6 +3,7 @@ const verifyToken = require("../middlewares/validate-token")
 const rankingController = require("../controllers/rankingController")
 const rankingRouter = express.Router();
 
-rankingRouter.get('/ranking', verifyToken, rankingController.getRanking)
+rankingRouter.get('/ranking', rankingController.getRanking)
+rankingRouter.get('/findRanking/:nickname', rankingController.getRankingByNickname)
 
 module.exports = rankingRouter
