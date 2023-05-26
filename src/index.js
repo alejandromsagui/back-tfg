@@ -14,6 +14,7 @@ const { multerMid } = require('./middlewares/multer')
 const { reduceImageSize } = require('./middlewares/multer')
 const errorHandler = require('./middlewares/errorHandler')
 const storage = require("./services/cloud")
+const rankingRouter = require("./routes/rankingRouter")
 const bucket = storage.bucket('namekiansgames')
 const { format } = require('util');
 const reportRouter = require("./routes/reportRouter")
@@ -98,6 +99,7 @@ app.use(paymentRouter);
 app.use(transactionRouter);
 app.use(ratingRouter);
 app.use(reportRouter)
+app.use(rankingRouter)
 
 // const countDocuments = async () => {
 //     const io = global.io; // Accede a la instancia de Socket.io globalmente
