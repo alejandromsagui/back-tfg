@@ -546,33 +546,23 @@ const exportData = async(req, res) => {
     `  
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-  
+    
     // Configurar el contenido HTML de la página
     await page.setContent(htmlContent);
-  
-    // Generar el nombre de archivo y la ruta
+    
+    // Generar el nombre de archivo
     const fileName = "transacciones.pdf";
-    let filePath = path.join(downloadsFolder(), fileName);
-    let counter = 1;
-  
-    // Verificar y modificar el nombre de archivo si ya existe
-    while (fs.existsSync(filePath)) {
-      const baseName = path.basename(fileName, path.extname(fileName));
-      const newName = `${baseName}(${counter})${path.extname(fileName)}`;
-      filePath = path.join(downloadsFolder(), newName);
-      counter++;
-    }
-  
-    // Guardar el archivo PDF en la carpeta de descargas del usuario
-    await page.pdf({ path: filePath, format: "A4", printBackground: true, preferCSSPageSize: true });
-  
+    
+    // Generar el archivo PDF en memoria
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+    
     // Establecer los encabezados adecuados
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-  
-    // Leer el archivo y enviarlo como respuesta
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
+    
+    // Enviar el archivo PDF como respuesta
+    res.send(pdfBuffer);
+    
   } catch (error) {
     console.log(error);
     return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
