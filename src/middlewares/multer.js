@@ -27,27 +27,29 @@ const multerMid = multer({
     },
 });
 
-// const reduceImageSize = (req, res, next) => {
-//     if (!req.file) {
-//         return next();
-//     }
+const reduceImageSize = (req, res, next) => {
+    if (!req.file) {
+        return next();
+    }
 
-//     try {
-//         sharp(req.file.buffer)
-//             // .resize({ height: 250, width: 500 })
-//             .toBuffer()
-//             .then((data) => {
-//                 req.file.buffer = data;
-//                 next();
-//             })
-//             .catch((err) => {
-//                 console.error("Error procesando la imagen");
-//                 next(err);
-//             });
-//     } catch (err) {
-//         console.error("Error procesando la imagen");
-//         next(err);
-//     }
-// };
+    try {
+        sharp(req.file.buffer)
+            .resize({ width: 800, height: 450, fit: 'inside' })
+            .toBuffer()
+            .then((data) => {
+                req.file.buffer = data;
+                next();
+            })
+            .catch((err) => {
+                console.error("Error procesando la imagen");
+                next(err);
+            });
+    } catch (err) {
+        console.error("Error procesando la imagen");
+        next(err);
+    }
+};
 
-module.exports = { multerMid };
+
+
+module.exports = { multerMid, reduceImageSize };

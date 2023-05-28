@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Multer
 app.use(multerMid.single('image'))
-// app.use(reduceImageSize)
+app.use(reduceImageSize)
 app.use(errorHandler)
 
 //CORS

@@ -48,7 +48,7 @@ const newVideogame = async (req, res) => {
       price: req.body.price,
       userId: req.user.id,
       nickname: req.user.nickname,
-      status: "",
+      status: "En venta",
     };
 
     const genres = await genresModel.find();
@@ -103,35 +103,74 @@ const newVideogame = async (req, res) => {
 const updateVideogame = async (req, res) => {
   try {
     const id = req.params.id;
-    const update = {
-      name: req.body.name,
-      description: req.body.description,
-      genre: req.body.genre,
-      price: req.body.price,
-    };
-    const videogame = await Videogame.findById(id);
 
-    if (!videogame) {
+    const existVideogame = await Videogame.findById(id);
+
+    if (!existVideogame) {
       return res.status(404).send({
-        message: "El videojuego no existe",
+        message: "El videojuego no existe en tu lista",
       });
     }
 
-    const updateVideogame = await Videogame.findByIdAndUpdate(id, update, {
-      new: true,
-    });
+    const url = await uploadVideogameImage(req);
+
+    const videogame = {
+      name: req.body.name || existVideogame.name,
+      description: req.body.description || existVideogame.description,
+      image: url || existVideogame.image,
+      genre: req.body.genre || existVideogame.genre,
+      price: req.body.price || existVideogame.price,
+      platform: req.body.platform || existVideogame.platform,
+      userId: req.user.id,
+      nickname: req.user.nickname,
+    }
+
+    const genres = await genresModel.find();
+
+    const genresNames = genres.map((v) => v.genre.toLowerCase());
+
+    const userGenres = req.body.genre.toLowerCase().split(',')
+    const allGenresMatch = userGenres.every((userGenre) => genresNames.includes(userGenre));
+
+    if(!req.body.name){
+      return res.status(400).send({ message: 'El título es obligatorio'})
+    }
+
+    if(!req.body.description){
+      return res.status(400).send({ message: 'La descripción es obligatoria'})
+    }
+
+    if(!req.body.platform){
+      return res.status(400).send({ message: 'La plataforma es obligatoria'})
+    }
+
+    if(!allGenresMatch || !req.body.genre){
+      return res.status(400).send({ message: 'El género no coincide'})
+    }
+
+    if (req.body.price <= 0) {
+      return res.status(400).send({ message: "El precio debe ser mayor que 0" });
+    }
+
+    await Videogame.validate(videogame);
+
+    await Videogame.findByIdAndUpdate(id, videogame, {new: true})
 
     return res.status(200).json({
-      message: "El usuario se ha actualizado correctamente",
-      updateVideogame,
+      message: 'Videojuego actualizado correctamente'
     });
-  } catch (err) {
-    return res.status(500).json({
-      message: "Error al actualizar los datos del videojuego",
-      err,
-    });
+
+  } catch (error) {
+      console.log(error);
+      if (error.name === "ValidationError") {
+        const validationErrors = Object.values(error.errors).map(
+          (error) => error.message
+        );
+        return res.status(400).json({ message: validationErrors[0] });
+      }
   }
 };
+
 
 const deleteVideogame = async (req, res) => {
   try {
@@ -148,6 +187,7 @@ const deleteVideogame = async (req, res) => {
       message: "El videojuego ha sido eliminado correctamente",
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       message: "Error en el servidor",
       err,
@@ -155,10 +195,64 @@ const deleteVideogame = async (req, res) => {
   }
 };
 
+const getVideogamesByUser = async (req, res) => {
+  try {
+    // Obtener el nickname del usuario desde req.user.nickname
+    const nickname = req.user.nickname;
+    
+    // Lógica para buscar los videojuegos del usuario en la base de datos
+    const videojuegos = await Videogame.find({ nickname: nickname });
+    
+    // Devolver los videojuegos como respuesta
+    res.json(videojuegos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los videojuegos del usuario' });
+  }
+};
+
+
+const updateState = async (req, res) => {
+  try {
+    const videogameId = req.params.id;
+    const state = req.body.status;
+
+    const existVideogame = await Videogame.findById(videogameId);
+
+    if (!existVideogame) {
+      return res.status(400).send({ message: "El videojuego no se encuentra en tu lista" });
+    }
+
+    if (state !== 'Vendido' && state !== 'Reservado' && state !== 'En venta') {
+      return res.status(400).send({ message: "Estado de venta no autorizado" });
+    }
+
+    if (state === existVideogame.status) {
+      return res.status(400).send({ message: "Estado de venta no autorizado" });
+    }
+
+    await Videogame.findByIdAndUpdate(videogameId, { status: state });
+
+    return res.status(200).send({ message: "Estado actualizado correctamente" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Error al actualizar el estado de venta" });
+  }
+};
+
+
+
+const deleteVideogameByName = async() => {
+
+}
+
 module.exports = {
   getVideogames,
   newVideogame,
   updateVideogame,
   deleteVideogame,
-  uploadVideogameImage
+  uploadVideogameImage,
+  getVideogamesByUser,
+  updateState,
+  deleteVideogameByName
 };
