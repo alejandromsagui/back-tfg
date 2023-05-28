@@ -26,12 +26,12 @@ const verifyToken = require ('./middlewares/validate-token')
 const server = http.createServer(app);
 const enforce = require('express-sslify');
 
-
 const io = require("socket.io")(server, {
     cors: {
-        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://namekiansgames.herokuapp.com"],
         methods: ["GET", "POST"],
-        credentials: true
+        credentials: true,
+        allowedHeaders: ["Access-Control-Allow-Origin"]
     }
 });
 
