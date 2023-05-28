@@ -24,6 +24,9 @@ const exportData = require("./services/export-data")
 const http = require('http');
 const verifyToken = require ('./middlewares/validate-token')
 const server = http.createServer(app);
+const enforce = require('express-sslify');
+
+
 const io = require("socket.io")(server, {
     cors: {
         origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -37,6 +40,9 @@ server.listen(port, () => {
     console.log('Servidor corriendo en el puerto ' + port);
 });
 
+if (process.env.NODE_ENV === 'production') {
+    app.use(enforce.HTTPS({ trustProtoHeader: true }));
+  }
 //BodyParser
 app.use(bodyParser.json());
 
