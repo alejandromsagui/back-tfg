@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema({
     rol: { type: String, enum: ['Administrador', 'Usuario'], default: 'Usuario' },
     blocked: {type: Boolean, default: false},
     numReportsVideogames: {type: Number, default: 0},
-    numReports: {type: Number, default: 0}
+    numReports: {type: Number, default: 0},
+    recoveryCode: {type: String, default: ""}
 }, {
     timestamps: true
 });

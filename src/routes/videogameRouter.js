@@ -14,4 +14,5 @@ videogameRouter.delete('/deleteVideogameByName/:id', verifyToken, videogameContr
 videogameRouter.post('/uploads', verifyToken, videogameController.uploadVideogameImage);
 
 
+
 module.exports = videogameRouter

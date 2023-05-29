@@ -10,5 +10,7 @@ authRouter.post('/login', authController.login)
 authRouter.post('/recovery', authController.recoveryPassword)
 authRouter.get('/decode', verifyToken, authController.decodeToken)
 authRouter.put('/updateToken', authController.updateToken)
+authRouter.post('/checkCode', authController.checkCode)
+authRouter.put('/changePassword', authController.recovery)
 
 module.exports = authRouter;

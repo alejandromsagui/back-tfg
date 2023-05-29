@@ -126,7 +126,12 @@ const recoveryPassword = async (req, res) => {
     console.log("Nombre de usuario: " + user.nickname);
     console.log("Correo: " + user.email);
 
+
     if (user) {
+
+      user.recoveryCode = code;
+      await user.save()
+
       res.status(200).send({
         message:
           "Si existe, recibirás en tu correo electrónico el código para modificar tu cuenta",
@@ -140,6 +145,8 @@ const recoveryPassword = async (req, res) => {
           code +
           "</h3> </div> <h3 style='color: #fff;'>Este código se ha generado a partir de una petición de recuperación de contraseña.</h3> </td> </tr> </table> </td> </tr> <!-- END MAIN CONTENT AREA --> </table> <!-- END CENTERED WHITE CONTAINER --> <!-- START FOOTER --> <div class='footer'> <table role='presentation' border='0' cellpadding='0' cellspacing='0'> <tr> <td class='content-block powered-by' style='color: #000000'> Atentamente, el equipo de <a href='https://namekiansgames.herokuapp.com/' style='color: #000000'>Namekians<span style='color: #F80808;'>Games</span></a>. </td> </tr> </table> </div> <!-- END FOOTER --> </div> </td> </tr> </table></body></html>",
       });
+
+      
     } else {
       res.status(200).send({
         message:
@@ -152,6 +159,30 @@ const recoveryPassword = async (req, res) => {
       .send(
         "Si existe, recibirás en tu correo electrónico el código para modificar tu cuenta"
       );
+  }
+};
+
+const checkCode = async (req, res) => {
+  const { email, nickname, recoveryCode } = req.body;
+
+  try {
+    const user = await userModel.findOne({
+      $or: [{ email }, { nickname }],
+    });
+
+    if (!user) {
+      return res.status(400).send("Ha ocurrido un error al recuperar tu contraseña");
+    }
+
+    if (user.recoveryCode === recoveryCode) {
+      return res.status(200).send("Código de recuperación válido.");
+    } else {
+      
+      return res.status(400).send("Código de recuperación inválido.");
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Ha ocurrido un error al recuperar tu contraseña");
   }
 };
 
@@ -197,11 +228,74 @@ const parseJwt = (req, res) => {
 
 
 };
+
+const recovery = async (req, res) => {
+  try {
+    const username = req.body.nickname;
+    const email = req.body.email;
+    const newPassword = req.body.newPassword;
+    const confirmPassword = req.body.confirmPassword;
+    const recoveryCode = req.body.recoveryCode; 
+
+
+    const user = await userModel.findOne({
+      $or: [
+        { nickname: username },
+        { email: email }
+      ]
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        message: 'Algo ha ido mal'
+      });
+    }
+
+    if (newPassword.length <= 5) {
+      return res.status(400).json({
+        message: 'La nueva contraseña debe ser superior a 5 caracteres'
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: 'Las contraseñas no coinciden'
+      });
+    }
+
+    if (user.recoveryCode !== recoveryCode) { // Verificar el código de recuperación
+      return res.status(400).json({
+        message: 'El código de recuperación no es válido'
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const update = { password: hashedPassword };
+    await userModel.findOneAndUpdate({ _id: user._id }, update, { new: true });
+
+    // Eliminar el código de recuperación después de cambiar la contraseña
+    user.recoveryCode = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      message: 'La contraseña se ha actualizado correctamente'
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Algo ha ido mal'
+    });
+  }
+};
+
+
 module.exports = {
   newUser,
   login,
   recoveryPassword,
   decodeToken,
   updateToken,
-  parseJwt
+  parseJwt,
+  checkCode,
+  recovery
 };
