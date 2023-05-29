@@ -183,7 +183,7 @@ const updateEmail = async (req, res) => {
         }
 
         if (!isValidEmailRule(newEmail)) {
-            return res.status(400).send({ message: "El correo electrónico no tiene un válido" })
+            return res.status(400).send({ message: "El correo electrónico no tiene un formato válido" })
         }
         if (user.email !== newEmail) {
             const existingEmail = await User.findOne({ email: newEmail })
@@ -198,18 +198,19 @@ const updateEmail = async (req, res) => {
         const token = jwt.sign(
             {
                 id: user.id,
-                nickname: newEmail,
-                email: user.email,
+                nickname: user.nickname,
+                email: newEmail,
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
         return res.status(200)
-            .header('Authorization', token)
-            .json({
-                message: 'El correo se ha actualizado correctamente'
-            });
+        .header('Authorization', token)
+        .send({
+            message: 'El correo electrónico se ha actualizado correctamente',
+            data: {token}
+        });
     } catch (err) {
         console.log(err);
         return res.status(500).json({

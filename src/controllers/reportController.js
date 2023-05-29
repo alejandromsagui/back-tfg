@@ -153,7 +153,11 @@ const newRecommendation = async (req, res) => {
       message: req.body.message,
     };
 
-    if (!recommendation) {
+    if (!req.body.message) {
+      return res.status(400).send({ message: "La recomendación no puede estar vacía" });
+    }
+
+    if(!recommendation){
       return res.status(400).send({ message: "Algo ha ido mal" });
     }
     notificationModel.create(recommendation);

@@ -84,8 +84,10 @@ const newVideogame = async (req, res) => {
     await Videogame.validate(videogame);
 
     const videogameDB = await Videogame.create(videogame);
+
     return res.status(200).json({
       message: "El videojuego se ha creado correctamente",
+      videogame: videogameDB
     });
     
   } catch (error) {
