@@ -552,7 +552,10 @@ const exportData = async(req, res) => {
       </body>
       </html>
     `  
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox"]
+    });
     const page = await browser.newPage();
     
     // Configurar el contenido HTML de la página
