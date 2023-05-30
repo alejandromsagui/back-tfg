@@ -1,4 +1,6 @@
 const transactionModel = require("../models/transactionModel")
+const videogameModel = require("../models/videogameModel")
+const userModel = require("../models/usuarioModel")
 const mongoose = require("mongoose");
 const axios = require("axios")
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -21,43 +23,81 @@ const transactions = async (req, res) => {
 
 const newTransaction = async (req, res) => {
     try {
+      const transaction = {
+        idBuyer: req.user.id,
+        nicknameBuyer: req.user.nickname,
+        description: `Transacción realizada entre el usuario comprador ${req.user.nickname} y el usuario vendedor ${req.body.nicknameSeller}`,
+        price: req.body.price,
+        date: new Date().toLocaleString("es-ES"),
+        idSeller: req.body.idSeller,
+        nicknameSeller: req.body.nicknameSeller,
+        idVideogame: req.body.idVideogame,
+        videogame: req.body.videogame,
+        platform: req.body.platform
+      };
+  
+      const videogame = await videogameModel.findOne({ _id: transaction.idVideogame });
+      const user = await userModel.findOne({ _id: transaction.idSeller });
+      const userBuyer = await userModel.findOne({ _id: transaction.idBuyer });
+  
+      console.log('videogameid ', videogame.id);
+      if (videogame.id !== transaction.idVideogame) {
+        return res.status(400).send({ message: "El ID del videojuego no coincide" });
+      }
+      
+      if (parseInt(videogame.price) !== parseInt(transaction.price)) {
+        return res.status(400).send({ message: "El precio del videojuego no coincide" });
+      }
+      
+      if (videogame.name !== transaction.videogame) {
+        return res.status(400).send({ message: "El nombre del videojuego no coincide" });
+      }
+      
+      if (transaction.description !== `Transacción realizada entre el usuario comprador ${req.user.nickname} y el usuario vendedor ${req.body.nicknameSeller}`) {
+        return res.status(400).send({ message: "La descripción del videojuego no coincide" });
+      }
+      
+      if (videogame.platform !== transaction.platform) {
+        return res.status(400).send({ message: "La plataforma del videojuego no coincide" });
+      }
+      
+      if (transaction.idSeller !== user.id) {
+        return res.status(400).send({ message: "El ID del vendedor no coincide" });
+      }
+      
+      if (videogame.nickname !== transaction.nicknameSeller) {
+        return res.status(400).send({ message: "El nombre de usuario del vendedor no coincide" });
+      }
+  
+      if (transaction.nicknameBuyer === user.nickname || transaction.idBuyer === user.id) {
+        return res.status(400).send({ message: "No puedes comprar tus propios juegos" });
+      }
+  
+      if (userBuyer.number_namekoins < transaction.price) {
+        return res.status(400).send({ message: "Saldo insuficiente" });
+      }
 
-        const transaction = {
-            idBuyer: req.user.id,
-            nicknameBuyer: req.user.nickname,
-            description: req.body.description,
-            price: req.body.price,
-            date: new Date().toLocaleString("es-ES"),
-            idSeller: req.body.idSeller,
-            nicknameSeller: req.body.nicknameSeller,
-            idVideogame: req.body.idVideogame,
-            videogame: req.body.videogame,
-            platform: req.body.platform
-        }
+      if(videogame.status === 'Vendido'){
+        return res.status(400).send({ message: "No puedes comprar un juego que ya se ha vendido"})
+      }
+  
+      userBuyer.number_namekoins = userBuyer.number_namekoins -  transaction.price;
+      user.number_namekoins = user.number_namekoins + transaction.price;
+      videogame.status = 'Vendido'
 
-        const transactionDB = transactionModel.create(transaction)
+      await userBuyer.save();
+      await user.save();
+      await videogame.save()
 
-        const userBuyer = await axios.get(`${process.env.HOST}/getUser/${transaction.nicknameBuyer}`)
-        const userSeller = await axios.get(`${process.env.HOST}/getUser/${transaction.nicknameSeller}`)
-        let namekoinsBuyer = userBuyer.data.user.number_namekoins;
-        let namekoinsSeller = userSeller.data.user.number_namekoins;
+      await transactionModel.create(transaction)
 
-        namekoinsBuyer = namekoinsBuyer - transaction.price
-        await axios.put(`${process.env.HOST}/updateNamekoins/${transaction.idBuyer}`, { number_namekoins: namekoinsBuyer })
-
-        namekoinsSeller = namekoinsSeller + transaction.price
-        await axios.put(`${process.env.HOST}/updateNamekoins/${transaction.idSeller}`, { number_namekoins: namekoinsSeller })
-
-        return res.status(200).json({
-            message: 'La transacción se ha realizado correctamente',
-            transactionDB,
-        });
-
+      return res.status(200).send({ message: 'La transacción se ha realizado correctamente' });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Error al realizar la transacción' });
+      console.log(error);
+      res.status(500).send({ message: 'Error al realizar la transacción' });
     }
-}
+  };
+  
 
 const getTransactionById = async (req, res) => {
     const nickname = req.params.nickname;

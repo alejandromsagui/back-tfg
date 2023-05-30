@@ -6,7 +6,8 @@ const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
 const downloadsFolder = require("downloads-folder");
-const axios = require("axios")
+const axios = require("axios");
+const { findById } = require("../models/videogameModel");
 require('dotenv').config({ path: '.env' });
 
 const getUsers = async (req, res) => {
@@ -68,7 +69,8 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = await User.findByIdAndDelete(id);
+
+        const user = await User.findById(id);
 
         if (!user) {
             return res.status(404).send({
@@ -76,11 +78,16 @@ const deleteUser = async (req, res) => {
             })
         }
 
-        if (req.user.id === user.id) {
-            return res.status(200).send({
-                message: 'Tu cuenta ha sido eliminado correctamente'
+        if (req.user.id.toString().toLowerCase() !== user.id.toString().toLowerCase()) {
+            return res.status(400).send({
+                message: 'Acción no autorizada'
             })
         }
+
+        await User.findByIdAndDelete(user.id)
+        return res.status(200).send({
+            message: 'El usuario se ha eliminado correctamente'
+        })
 
     } catch (err) {
         return res.status(500).json({
