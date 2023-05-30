@@ -1,5 +1,6 @@
 const rechargeModel = require("../models/rechargeModel")
 const namekoinsModel = require("../models/namekoinModel")
+const userModel = require("../models/usuarioModel")
 const axios = require("axios");
 require('dotenv').config({ path: '.env' });
 var nickname = ''
@@ -10,7 +11,7 @@ var cantidad = null
 // /capture-order?token=9RN51516J7574384P&PayerID=QSFLPRYQQYEZ6
 //La url retorna eso, el token es el ID de la transacción aprobada (el usuario le dio a aceptar), 
 const createOrder = async (req, res) => {
-    cantidad = req.body.quantity
+    cantidad = parseInt(req.body.quantity);
     nickname = req.user.nickname;
     id = req.user.id;
     try {
@@ -35,9 +36,12 @@ const createOrder = async (req, res) => {
             }
         }
 
-        if(namekoinsModel.quantity !== req.body.quantity){
-            return res.status(400).send({ message: 'Cantidad para recargar inválida'})
-        }
+        console.log('La cantidad elegida es esta: ', cantidad);
+        if (cantidad !== 10 && cantidad !== 25 && cantidad !== 40) {
+            console.log('cantidad desde dentro: ', cantidad);
+            return res.status(400).send({ message: 'Cantidad para recargar inválida' });
+          }
+
         const params = new URLSearchParams()
         params.append("grant_type", "client_credentials")
 
@@ -58,18 +62,19 @@ const createOrder = async (req, res) => {
             }
         })
 
-        res.json(response.data);
+        res.send(response.data);
 
     } catch (error) {
+        console.log(error);
         return res.status(500).send("Algo fue mal a la hora de crear el pedido")
     }
 };
 
 const captureOrder = async (req, res) => {
-
+    console.log('cantidad desde variable: '+cantidad);
+    console.log('Estoy aqui');
     try {
         const { token } = req.query
-        console.log('cantidad desde variable: '+cantidad);
         console.log(token);
 
         const response = await axios.post(`${process.env.PAYPAL_API}/v2/checkout/orders/${token}/capture`, {}, {
@@ -83,7 +88,9 @@ const captureOrder = async (req, res) => {
         console.log(response.data);
         console.log('Petición capturada');
 
-        console.log('Valor de req.user desde compra aceptada: ' + req.user);
+        console.log('Valor de req.user desde compra aceptada: ' + nickname);
+        console.log('Valor de cantidad antes recarga: ', cantidad);
+
         const newRecharge = {
             quantity: cantidad,
             date: new Date().toLocaleString("es-ES"),
@@ -91,20 +98,28 @@ const captureOrder = async (req, res) => {
             nickname: nickname
         };
 
+        console.log('Valor de recarga en newRecarge: ', newRecharge.quantity);
+
+        // if(newRecharge.cantidad !== 10 || newRecharge.cantidad !== 25 || newRecharge.cantidad !== 40){
+        //     return res.status(400).send({ message: 'Cantidad inválida'})
+        // }
+
         const recharge = await rechargeModel.create(newRecharge);
 
-        const user = await axios.get(`${process.env.HOST}/getUser/${nickname}`)
-        let namekoins = user.data.user.number_namekoins;
+
+        //Esto hay que cambiarlo. Realizar la operación aquí dentro
+        // const user = await axios.get(`${process.env.HOST}/getUser/${nickname}`)
+        // console.log('Petición de user en paypal: ', user.data);
+
+        const user = await userModel.findById({ _id: id})
+        let namekoins = user.number_namekoins
 
         console.log('Namekoins antes de la suma: '+namekoins);
         namekoins = namekoins + (cantidad * 10)
         console.log('Namekoins despues de la suma: '+namekoins);
-        const newNamekoins = await axios.put(`${process.env.HOST}/updateNamekoins/${id}`, {number_namekoins: namekoins})
-        console.log('Nuevos namekoins: ',newNamekoins.data);
-        return res.status(200).json({
-            message: 'Nueva recarga realizada',
-            recharge
-        })
+
+        await userModel.updateOne({ _id: id}, { number_namekoins: namekoins})
+        res.redirect('https://namekiansgames.herokuapp.com/')
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Ha ocurrido un error al realizar la recarga', error })
