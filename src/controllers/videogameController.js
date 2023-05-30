@@ -177,7 +177,8 @@ const updateVideogame = async (req, res) => {
 const deleteVideogame = async (req, res) => {
   try {
     const id = req.params.id;
-    const videogame = await Videogame.findByIdAndDelete(id);
+    
+    const videogame = await Videogame.findById(id);
 
     if (!videogame) {
       return res.status(404).send({
@@ -185,17 +186,22 @@ const deleteVideogame = async (req, res) => {
       });
     }
 
+    if (req.user.id.toString().toLowerCase() !== videogame.userId.toString().toLowerCase()) {
+      return res.status(400).send({ message: 'Acción denegada' });
+    }
+
+    await Videogame.findByIdAndDelete(videogame.id);
+
     return res.status(200).send({
       message: "El videojuego ha sido eliminado correctamente",
     });
   } catch (err) {
     console.log(err);
     return res.status(500).json({
-      message: "Error en el servidor",
-      err,
+      message: "Error en el servidor"
     });
   }
-};
+}
 
 const getVideogamesByUser = async (req, res) => {
   try {
