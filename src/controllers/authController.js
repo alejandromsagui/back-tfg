@@ -231,7 +231,7 @@ const parseJwt = (req, res) => {
 
 const recovery = async (req, res) => {
   try {
-    const username = req.body.nickname;
+    const nickname = req.body.nickname;
     const email = req.body.email;
     const newPassword = req.body.newPassword;
     const confirmPassword = req.body.confirmPassword;
@@ -240,7 +240,7 @@ const recovery = async (req, res) => {
 
     const user = await userModel.findOne({
       $or: [
-        { nickname: username },
+        { nickname: nickname },
         { email: email }
       ]
     });
@@ -252,19 +252,19 @@ const recovery = async (req, res) => {
     }
 
     if (newPassword.length <= 5) {
-      return res.status(400).json({
+      return res.status(400).send({
         message: 'La nueva contraseña debe ser superior a 5 caracteres'
       });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({
+      return res.status(400).send({
         message: 'Las contraseñas no coinciden'
       });
     }
 
-    if (user.recoveryCode !== recoveryCode) { // Verificar el código de recuperación
-      return res.status(400).json({
+    if (user.recoveryCode !== recoveryCode) { 
+      return res.status(400).send({
         message: 'El código de recuperación no es válido'
       });
     }
@@ -273,16 +273,17 @@ const recovery = async (req, res) => {
     const update = { password: hashedPassword };
     await userModel.findOneAndUpdate({ _id: user._id }, update, { new: true });
 
-    // Eliminar el código de recuperación después de cambiar la contraseña
-    user.recoveryCode = undefined;
+    
+    user.recoveryCode = '';
     await user.save();
 
     return res.status(200).json({
+      status:200,
       message: 'La contraseña se ha actualizado correctamente'
     });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({
+    return res.status(500).send({
       message: 'Algo ha ido mal'
     });
   }
