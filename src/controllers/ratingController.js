@@ -62,25 +62,29 @@ const newRating = async (req, res) => {
             return res.status(400).send({ message: 'La puntuación debe estar entre el 1 y el 5'})
         }
 
-        if(rating.nickname === rating.nicknameUserProfile){
+        if(!rating.comment.toString()){
+            return res.status(400).send({ message: 'La valoración no puede estar vacía' })
+        }
+        if(rating.nickname === rating.nicknameUserProfile || rating.userId === rating.idUserProfile){
             return res.status(400).send({
                 message: 'No puedes valorarte a ti mismo'
             })
         }
 
-        const user = await userModel.findOne({ id: rating.idUserProfile})
-        
+        const user = await userModel.findOne({ _id: rating.idUserProfile})
+
         if(user.nickname !== rating.nicknameUserProfile){
             return res.status(400).send({ message: 'Algo ha ido mal'})
         }
 
-        // const ratingDB = await ratingModel.create(rating);
+        await ratingModel.create(rating);
 
         return res.status(200).json({
             message: 'La valoración se ha creado correctamente'
         })
 
     } catch (err) {
+        console.log(err);
         if (err.name === 'ValidationError') {
             const validationErrors = Object.values(err.errors).map(error => error.message);
             return res.status(400).json({message: validationErrors });

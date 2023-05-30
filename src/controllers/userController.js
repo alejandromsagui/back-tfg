@@ -567,6 +567,7 @@ const exportData = async(req, res) => {
     // Establecer los encabezados adecuados
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
     
     // Enviar el archivo PDF como respuesta
     res.send(pdfBuffer);
