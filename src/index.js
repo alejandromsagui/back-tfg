@@ -55,10 +55,10 @@ app.use(reduceImageSize)
 app.use(errorHandler)
 
 //CORS
-// app.use(cors({
-//     origin: true,
-//     credentials: true
-// }))
+app.use(cors({
+    origin: true,
+    credentials: true
+}))
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://namekiansgames.herokuapp.com');
