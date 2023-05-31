@@ -42,6 +42,31 @@ const getUsersAdmin = async (req, res) => {
     }
 }
 
+const countRegister = async (req, res) => {
+    try {
+      // Obtener la fecha actual
+      const fechaActual = new Date();
+    
+      // Calcular la fecha de inicio del mes actual
+      const fechaInicioMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+    
+      // Calcular la fecha de fin del mes actual
+      const fechaFinMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+        
+      console.log('Fecha inicio mes: ', fechaInicioMes);
+      console.log('Fecha inicio mes: ', fechaFinMes);
+      // Realizar la consulta para contar los registros en el rango de fechas
+      const numRegistros = await User.countDocuments({
+        createdAt: { $gte: fechaInicioMes, $lte: fechaFinMes }
+      });
+    
+      return res.status(200).send({ numRegistros });
+    } catch (error) {
+      return res.status(500).send({ error: 'Error al calcular el número de registros del mes' });
+    }
+  };
+  
+
 const updateUser = async (req, res) => {
     try {
         const id = req.params.id;
@@ -84,7 +109,7 @@ const deleteUser = async (req, res) => {
             })
         }
 
-        await User.findByIdAndDelete(user.id)
+        await User.findOneAndDelete({ _id: user.id });
         return res.status(200).send({
             message: 'El usuario se ha eliminado correctamente'
         })
@@ -582,4 +607,4 @@ const exportData = async(req, res) => {
   }
 }
 
-module.exports = { exportData, getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }
+module.exports = { exportData, countRegister, getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }

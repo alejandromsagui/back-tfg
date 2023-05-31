@@ -7,7 +7,7 @@ const rankingModel = mongoose.Schema({
         ref: 'Transactions',
         required: [true, "El id de la transacción es obligatoria"],
     },
-    idTransaction: {
+    userId: {
         type: Schema.Types.ObjectId,
         ref: 'Users',
         required: [true, "El id del usuario es obligatorio"],

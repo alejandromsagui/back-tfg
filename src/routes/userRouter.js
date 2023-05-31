@@ -6,6 +6,7 @@ const isAdmin = require('../middlewares/isAdmin');
 
 userRouter.get('/users', verifyToken, userController.getUsers);
 userRouter.get('/export', verifyToken, userController.exportData);
+userRouter.get('/countRegister', userController.countRegister)
 userRouter.get('/getNickname/:nickname', userController.getNickname)
 userRouter.get('/getNamekoins/:nickname', verifyToken, userController.getNamekoins)
 userRouter.get('/getEmail/:email', verifyToken, userController.getEmail);

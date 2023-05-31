@@ -4,6 +4,7 @@ const ratingsModel = require("../models/ratingModel")
 const reportsModel = require("../models/reportModel")
 const notificationsModel = require("./notificationModel")
 const rechargesModel = require("../models/rechargeModel")
+const rankingModel = require("../models/rankingModel")
 const transactionsModel = require("../models/transactionModel")
 
 var validateEmail = function (email) {
@@ -56,15 +57,15 @@ const userSchema = new mongoose.Schema({
 });
 
 
-userSchema.pre('remove', async function(next){
-    const userId = this._id;
-
+userSchema.pre('findOneAndDelete', async function(next){
+    const userId = this._conditions._id;
+    console.log('User ID:', userId);
     await videogameModel.deleteMany({userId: userId })
     await ratingsModel.deleteMany({userId: userId})
-    reportsModel.deleteMany({user: userId})
-    notificationsModel.deleteMany({user: userId})
-    rechargesModel.deleteMany({userId: userId})
-    
+    await reportsModel.deleteMany({user: userId})
+    await notificationsModel.deleteMany({user: userId})
+    await rankingModel.deleteMany({userId: userId})
+    await rechargesModel.deleteMany({userId: userId})
 })
 const User = mongoose.model('Users', userSchema);
 
