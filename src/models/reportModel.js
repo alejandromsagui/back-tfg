@@ -26,6 +26,7 @@ const reportSchema = new mongoose.Schema({
     type: String,
     default: new Date().toLocaleString("es-ES"),
   },
+  times: {type: Number, default: 0},
   show: { type: Boolean, default: true}
 });
 

@@ -6,24 +6,28 @@ const io = require("../index");
 
 const getReports = async (req, res) => {
   try {
-    const reports = await notificationModel.find();
-    const userIds = reports.map((report) => report.user);
 
-    const users = await userModel.find({ _id: { $in: userIds } });
-    const userIdToNickname = users.reduce((acc, user) => {
-      acc[user._id.toString()] = user.nickname;
-      return acc;
-    }, {});
+    if(req.user.rol === "Administrador"){
+      const reports = await notificationModel.find();
+      const userIds = reports.map((report) => report.user);
+  
+      const users = await userModel.find({ _id: { $in: userIds } });
+      const userIdToNickname = users.reduce((acc, user) => {
+        acc[user._id.toString()] = user.nickname;
+        return acc;
+      }, {});
+  
+      const getAllReports = reports.map((report) => ({
+        user: userIdToNickname[report.user.toString()] || "",
+        date: report.date,
+        type: report.type,
+        message: report.message,
+        show: report.show,
+      }));
+  
+      res.status(200).json({ getAllReports });
+    }
 
-    const getAllReports = reports.map((report) => ({
-      user: userIdToNickname[report.user.toString()] || "",
-      date: report.date,
-      type: report.type,
-      message: report.message,
-      show: report.show,
-    }));
-
-    res.status(200).json({ getAllReports });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -94,22 +98,24 @@ const reportGame = async (req, res) => {
   try {
     const id = req.params.id;
 
-    console.log('Valor de req.user.nickname: ', req.user.nickname);
-    const nickname = req.user.nickname; // Recoge el nombre de usuario del middleware
-    const currentTime = Date.now(); // Obtiene el tiempo actual en milisegundos
+    const nickname = req.user.nickname; 
+    const currentTime = Date.now(); 
 
-    // Realiza la lógica para contar las denuncias del usuario en la última hora
+    
     const userReports = await reportModel.find({
       nickname: nickname,
       createdAt: {
-        $gte: new Date(currentTime - 3600000), // Filtra las denuncias en la última hora
+        $gte: new Date(currentTime - 3600000), 
       },
     });
 
     const userData = await userModel.findOne({ nickname: nickname });
     console.log('Valor de userData: ', userData.nickname);
-    if (userReports.length >= 1) {
-      // El usuario ha realizado más de 5 denuncias en la última hora
+    console.log('Valor de req.nickname: ', req.user.nickname);
+    console.log('Valor de userData._id: ', userData._id);
+    console.log('Valor de req.id: ', req.user.id);
+    if (userReports.length >= 1 && req.user.nickname === userData.nickname && req.user.id === userData._id.toString()) {
+
 
       await userModel.updateOne({ nickname: nickname }, { blocked: true });
 
@@ -121,48 +127,59 @@ const reportGame = async (req, res) => {
       //   const io = req.app.get("io");
       //   io.emit("adminNotification", message);
       // }
-
+      const videogameData = await videogameModel.findOne({ _id: id });
+      const name = videogameData.name;
+    
+      const details = `El videojuego ${name} ha sido denunciado por contenido inapropiado`
       const notification = new notificationModel({
         type: "Reporte",
         user: req.user.id,
         message: message,
-        nickname: nickname
+        nickname: nickname,
+        idVideogame: id || '',
+        nameVideogame: name || '',
+        details: details
       });
+
+      if (!videogameData) {
+        return res
+          .status(400)
+          .send({ message: "El contenido del reporte no puede estar vacío" });
+      }
+  
+      if (!nickname || !id) {
+        return res
+          .status(400)
+          .send({ message: "El contenido del reporte no puede estar vacío" });
+      }
+
       await notification.save();
+      
+    const count = await notificationModel.countDocuments({idVideogame: req.params.id})
 
-      return res.status(403).send({
-        message:
-          "Tu cuenta ha sido bloqueada por denunciar de manera frecuente",
-      });
-    }
-
-    const videogameData = await videogameModel.findOne({ _id: id });
-
-    if (!videogameData) {
-      return res
-        .status(400)
-        .send({ message: "El contenido del reporte no puede estar vacío" });
-    }
-
-    if (!nickname || !id) {
-      return res
-        .status(400)
-        .send({ message: "El contenido del reporte no puede estar vacío" });
-    }
-
+    console.log('Lo que da count: ', count);
     const report = new reportModel({
       user: req.user.id,
       nickname: userData.nickname,
       videogame: videogameData._id,
       nameVideogame: videogameData.name,
       owner: videogameData.nickname,
+      times: count
     });
 
     console.log('Objeto report: ', report);
     await report.save();
 
-    return res.status(200).send({ message: "Denuncia realizada" });
+      return res.status(403).send({
+        message:
+          "Tu cuenta ha sido bloqueada por denunciar de manera frecuente",
+      });
+    } else {
+      return res.status(400).send({ message: "Acción denegada"})
+    }
+
   } catch (error) {
+    console.log(error);
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(
         (err) => err.message
@@ -220,4 +237,13 @@ const newRecommendation = async (req, res) => {
     return res.status(500).send({ message: "Algo ha ido mal" });
   }
 };
-module.exports = { blockUser, reportGame, getReports, newRecommendation, unblockUser };
+
+const getVideogamesReported = async(req, res) => {
+  try {
+    const videogamesReported = await reportModel.find()
+    return res.status(200).send(videogamesReported)
+  } catch (error) {
+    return res.status(500).send({ message: "Algo ha ido mal" });
+  }
+}
+module.exports = { blockUser, reportGame, getReports, newRecommendation, unblockUser, getVideogamesReported };

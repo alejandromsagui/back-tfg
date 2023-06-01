@@ -26,6 +26,12 @@ const notificationsModel = mongoose.Schema({
     }),
     required: [true, "La fecha es obligatoria"],
   },
+  idVideogame: {
+      type: Schema.Types.ObjectId,
+      ref: 'Videogames',
+      default: ''
+  },
+  nameVideogame: { type: String, default: ''},
   details: {type: String, required: true},
   
   show: { type: Boolean },
