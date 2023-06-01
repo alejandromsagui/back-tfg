@@ -34,6 +34,9 @@ var videogameSchema = new mongoose.Schema(
       enum: ["En venta", "Vendido", "Reservado"],
       default: "En venta",
     },
+    reports: {
+      type: Number, default: 0
+    }
   },
   {
     timestamps: true,

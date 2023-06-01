@@ -81,7 +81,7 @@ const unblockUser = async (req, res) => {
 
       return res
         .status(200)
-        .send({ message: "Usuario bloqueado" });
+        .send({ message: "Usuario desbloqueado" });
     } else {
       return res.status(403).send({ message: "No estás autorizado" });
     }

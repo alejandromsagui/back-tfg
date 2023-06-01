@@ -28,7 +28,7 @@ const enforce = require('express-sslify');
 
 const io = require("socket.io")(server, {
     cors: {
-        origin: ["http://localhost:8000", "http://127.0.0.1:8000", "https://namekiansgames.herokuapp.com"],
+        origin: ["http://localhost:8000", "http://127.0.0.1:8000"],
         methods: ["GET", "POST"],
         credentials: true,
         allowedHeaders: ["Access-Control-Allow-Origin"]
@@ -56,12 +56,12 @@ app.use(errorHandler)
 
 //CORS
 app.use(cors({
-    origin: true,
+    origin: 'http://localhost:8000',
     credentials: true
 }))
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://namekiansgames.herokuapp.com');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', true);
