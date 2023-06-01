@@ -1,5 +1,4 @@
 const rechargeModel = require("../models/rechargeModel")
-const namekoinsModel = require("../models/namekoinModel")
 const userModel = require("../models/usuarioModel")
 const axios = require("axios");
 require('dotenv').config({ path: '.env' });

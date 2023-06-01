@@ -26,6 +26,8 @@ const notificationsModel = mongoose.Schema({
     }),
     required: [true, "La fecha es obligatoria"],
   },
+  details: {type: String, required: true},
+  
   show: { type: Boolean },
 });
 

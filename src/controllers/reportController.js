@@ -93,6 +93,8 @@ const unblockUser = async (req, res) => {
 const reportGame = async (req, res) => {
   try {
     const id = req.params.id;
+
+    console.log('Valor de req.user.nickname: ', req.user.nickname);
     const nickname = req.user.nickname; // Recoge el nombre de usuario del middleware
     const currentTime = Date.now(); // Obtiene el tiempo actual en milisegundos
 
@@ -105,23 +107,26 @@ const reportGame = async (req, res) => {
     });
 
     const userData = await userModel.findOne({ nickname: nickname });
-
+    console.log('Valor de userData: ', userData.nickname);
     if (userReports.length >= 1) {
       // El usuario ha realizado más de 5 denuncias en la última hora
 
       await userModel.updateOne({ nickname: nickname }, { blocked: true });
 
-      //Modificar esto para que solo lo pueda ver el admin
       const message = `El usuario ${nickname} ha sido bloqueado por denunciar de manera frecuente`;
 
-      const io = req.app.get("io");
-      io.emit("adminNotification", message);
+      // if(req.user.rol === "Administrador"){
 
-      ////
+
+      //   const io = req.app.get("io");
+      //   io.emit("adminNotification", message);
+      // }
+
       const notification = new notificationModel({
         type: "Reporte",
         user: req.user.id,
         message: message,
+        nickname: nickname
       });
       await notification.save();
 
@@ -147,12 +152,13 @@ const reportGame = async (req, res) => {
 
     const report = new reportModel({
       user: req.user.id,
-      nickname: nickname,
+      nickname: userData.nickname,
       videogame: videogameData._id,
       nameVideogame: videogameData.name,
       owner: videogameData.nickname,
     });
 
+    console.log('Objeto report: ', report);
     await report.save();
 
     return res.status(200).send({ message: "Denuncia realizada" });
@@ -175,20 +181,36 @@ const reportGame = async (req, res) => {
 
 const newRecommendation = async (req, res) => {
   try {
+
+    const message = `El usuario ${req.user.nickname} ha realizado una nueva recomendación`
+
     const recommendation = {
       type: "Recomendación",
       user: req.user.id,
       nickname: req.user.nickname,
-      message: req.body.message,
+      message: message,
+      details: req.body.details
     };
 
-    if (!req.body.message) {
+    const user = await userModel.findOne({ nickname: recommendation.nickname})
+    if (!message) {
       return res.status(400).send({ message: "La recomendación no puede estar vacía" });
     }
 
-    if(!recommendation){
-      return res.status(400).send({ message: "Algo ha ido mal" });
+    if(recommendation.type !== "Recomendación"){
+      return res.status(400).send({ message: 'Acción no autorizada'})
     }
+    if(recommendation.nickname !== user.nickname){
+      return res.status(400).send({ message: 'Acción no autorizada'})
+    }
+
+    if (!recommendation.details) {
+      return res.status(400).send({ message: 'Debes indicar un mensaje de recomendación' });
+    }
+    
+    console.log('Recommendation: ', req.body.details);
+    console.log('User nickname: ', recommendation.details);
+
     notificationModel.create(recommendation);
 
     return res.status(200).send({
