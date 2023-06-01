@@ -37,7 +37,7 @@ const blockUser = async (req, res) => {
     const username = req.params.nickname;
 
     const user = await userModel.findOne({ nickname: req.user.nickname });
-    const isAdmin = user.rol;
+    const isAdmin = req.user.rol;
 
     if (isAdmin === "Administrador") {
       const updatedUser = await userModel.findOneAndUpdate(
@@ -52,14 +52,43 @@ const blockUser = async (req, res) => {
 
       return res
         .status(200)
-        .send({ message: "Usuario bloqueado y reporte creado" });
+        .send({ message: "Usuario bloqueado" });
     } else {
       return res.status(403).send({ message: "No estás autorizado" });
     }
   } catch (error) {
     return res.status(500).send({ error: "Error al bloquear al usuario" });
   }
-};
+}
+
+const unblockUser = async (req, res) => {
+  try {
+    const username = req.params.nickname;
+
+    const user = await userModel.findOne({ nickname: req.user.nickname });
+    const isAdmin = req.user.rol;
+
+    if (isAdmin === "Administrador") {
+      const updatedUser = await userModel.findOneAndUpdate(
+        { nickname: username },
+        { blocked: false },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(400).send({ error: "Error al desbloquear al usuario" });
+      }
+
+      return res
+        .status(200)
+        .send({ message: "Usuario bloqueado" });
+    } else {
+      return res.status(403).send({ message: "No estás autorizado" });
+    }
+  } catch (error) {
+    return res.status(500).send({ error: "Error al bloquear al usuario" });
+  }
+}
 
 const reportGame = async (req, res) => {
   try {
@@ -169,4 +198,4 @@ const newRecommendation = async (req, res) => {
     return res.status(500).send({ message: "Algo ha ido mal" });
   }
 };
-module.exports = { blockUser, reportGame, getReports, newRecommendation };
+module.exports = { blockUser, reportGame, getReports, newRecommendation, unblockUser };

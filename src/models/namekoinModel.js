@@ -9,7 +9,13 @@ const namekoinsSchema = new mongoose.Schema({
         message: 'Las únicas opciones disponibles para la recarga son 10€, 25€ o 40€'
     }
 },
-    date: { type: String, required: true},
+    date: { type: String, default: new Date().toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      required: [true, "La fecha es obligatoria"],
+    },
     rechargeId: {
         type: Schema.Types.ObjectId,
         ref: 'Recharge',
