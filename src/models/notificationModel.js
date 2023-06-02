@@ -29,12 +29,12 @@ const notificationsModel = mongoose.Schema({
   idVideogame: {
       type: Schema.Types.ObjectId,
       ref: 'Videogames',
-      default: ''
+      default: null
   },
   nameVideogame: { type: String, default: ''},
   details: {type: String, required: true},
   
-  show: { type: Boolean },
+  readed: { type: Boolean, default: false},
 });
 
 const Notification = mongoose.model("Notifications", notificationsModel);

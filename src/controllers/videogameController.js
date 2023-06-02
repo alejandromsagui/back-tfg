@@ -174,6 +174,45 @@ const updateVideogame = async (req, res) => {
 };
 
 
+const deleteVideogameByAdmin = async(req, res) => {
+  try {
+    const id = req.params.id;
+  
+
+    console.log('Valor de id: ', id);
+
+    if(req.user.rol === 'Administrador'){
+      console.log('Estoy aqui');
+      console.log('Valor de id 2: ', id);
+
+      const idDB = await Videogame.findById(id);
+      
+      console.log('lo que devuelve idDB: ', idDB);
+      if(id === idDB.id.toString()){
+        console.log('Valor de id 2: ', id);
+        await Videogame.findByIdAndDelete(id)
+
+        return res.status(200).send({
+          message: 'Videojuego eliminado'
+        })
+      } else {
+        return res.status(400).json({
+          message: "Los ids no coinciden"
+        });
+      }
+
+    } else {
+      return res.status(400).json({
+        message: "Acción denegada"
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Error en el servidor"
+    });
+  }
+}
 const deleteVideogame = async (req, res) => {
   try {
     const id = req.params.id;
@@ -262,5 +301,6 @@ module.exports = {
   uploadVideogameImage,
   getVideogamesByUser,
   updateState,
-  deleteVideogameByName
+  deleteVideogameByName,
+  deleteVideogameByAdmin
 };

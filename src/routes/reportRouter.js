@@ -10,6 +10,7 @@ reportRouter.post('/newRecommendation', verifyToken, reportController.newRecomme
 reportRouter.put('/block/:nickname', verifyToken, isAdmin, reportController.blockUser)
 reportRouter.put('/reportGame/:id', verifyToken, reportController.reportGame)
 reportRouter.put('/unblock/:nickname', verifyToken, isAdmin, reportController.unblockUser)
-
+reportRouter.put('/changeReaded/:id', verifyToken, reportController.changeReaded)
+reportRouter.delete('/deleteNotification/:id', verifyToken, reportController.deleteNotification)
 
 module.exports = reportRouter;

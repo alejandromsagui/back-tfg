@@ -11,6 +11,7 @@ videogameRouter.put('/updateVideogame/:id', verifyToken, videogameController.upd
 videogameRouter.put('/updateState/:id', verifyToken, videogameController.updateState);
 videogameRouter.delete('/deleteVideogame/:id', verifyToken, videogameController.deleteVideogame);
 videogameRouter.delete('/deleteVideogameByName/:id', verifyToken, videogameController.deleteVideogameByName);
+videogameRouter.delete('/deleteVideogameByAdmin/:id', verifyToken, videogameController.deleteVideogameByAdmin)
 videogameRouter.post('/uploads', verifyToken, videogameController.uploadVideogameImage);
 
 
