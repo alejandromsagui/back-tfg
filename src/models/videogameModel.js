@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const videogameModel = require("../models/videogameModel")
+const ratingsModel = require("../models/ratingModel")
+const reportsModel = require("../models/reportModel")
+const notificationsModel = require("./notificationModel")
+const rechargesModel = require("../models/rechargeModel")
+const rankingModel = require("../models/rankingModel")
+const transactionsModel = require("../models/transactionModel")
 
 var videogameSchema = new mongoose.Schema(
   {
@@ -43,6 +50,13 @@ var videogameSchema = new mongoose.Schema(
   }
 );
 
+videogameSchema.pre('findOneAndDelete', async function(next){
+  const videogameId = this._conditions._id;
+  console.log('videogameId: ', videogameId);
+  await reportsModel.deleteMany({videogame: videogameId})
+  await notificationsModel.deleteMany({idVideogame: videogameId})
+  
+})
 const Videogame = mongoose.model("Videogames", videogameSchema);
 
 module.exports = Videogame;

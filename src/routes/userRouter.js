@@ -20,7 +20,7 @@ userRouter.put('/updatePassword', verifyToken, userController.updatePassword);
 userRouter.put('/updateNickname', verifyToken, userController.updateNickname)
 userRouter.put('/updateEmail', verifyToken, userController.updateEmail)
 userRouter.delete('/deleteUser/:id', verifyToken, userController.deleteUser);
-userRouter.delete('/deleteUserByAdmin/:nickname', verifyToken, isAdmin, userController.deleteUserByAdmin)
-// userRouter.get('/chat', userController.chat)
+userRouter.delete('/deleteUserByAdmin/:id', verifyToken, userController.deleteUserByAdmin)
+// userRouter.get('/chat', userController.chat)/getUsersDetail
 
 module.exports = userRouter;

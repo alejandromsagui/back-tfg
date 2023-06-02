@@ -29,7 +29,7 @@ const getUsers = async (req, res) => {
 const getUsersAdmin = async (req, res) => {
     try {
         const users = await User.find({}, { nickname: 1, email: 1, blocked: 1 });
-        const transformedUsers = users.map(user => ({ nickname: user.nickname, email: user.email, blocked: user.blocked }));
+        const transformedUsers = users.map(user => ({ _id: user.id, nickname: user.nickname, email: user.email, blocked: user.blocked }));
         res.status(200).json({
             status: 'ok',
             users: transformedUsers
@@ -480,34 +480,46 @@ const uploadAvatarImage = async (req, res, next) => {
 
 const deleteUserByAdmin = async (req, res) => {
     try {
-        const username = req.params.nickname;
+        const id = req.params.id;
 
-        const user = await User.findOneAndDelete({ nickname: username })
+        const user = await User.findById(id);
 
-        console.log('Usuario devuelto por user: ', user);
-
-        if (!user) {
-            return res.status(400).send({ message: 'Algo ha ido mal' })
+        if (req.user.rol !== 'Administrador') {
+            return res.status(400).send({
+                message: 'Acción no autorizada'
+            })
         }
 
-        return res.status(200).send({ message: 'Usuario eliminado correctamente' })
-    } catch (error) {
+        if (!user) {
+            return res.status(400).send({
+                message: 'Algo ha ido mal'
+            })
+        }
 
-        return res.status(500).send({ message: 'Algo ha ido mal' })
+        await User.findOneAndDelete({ _id: user.id });
+
+        return res.status(200).send({
+            message: 'El usuario se ha eliminado correctamente'
+        })
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: 'Algo ha ido mal'
+        });
     }
-
 }
 
-const exportData = async(req, res) => {
+const exportData = async (req, res) => {
     try {
         const transactions = await axios.get(`${process.env.HOST}/findTransaction/${req.user.nickname}`)
-        
+
         const transactionsData = transactions.data;
 
         let tableRows = '';
         for (let i = 0; i < transactionsData.length; i++) {
-          const transaction = transactionsData[i];
-          const row = `
+            const transaction = transactionsData[i];
+            const row = `
             <tr>
               <td>${transaction.videogame}</td>
               <td>${transaction.nicknameBuyer === req.user.nickname ? 'Compra' : 'Venta'}</td>
@@ -515,9 +527,9 @@ const exportData = async(req, res) => {
               <td>${transaction.date}</td>
             </tr>
           `;
-          tableRows += row;
+            tableRows += row;
         }
-      const htmlContent = `
+        const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -576,35 +588,35 @@ const exportData = async(req, res) => {
         <sub style="margin-top: 50px !important;">Atentamente, el equipo de Namekians<span style="color: #C62828;">Games</span></sub>
       </body>
       </html>
-    `  
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [ '--no-sandbox',
-        '--disable-setuid-sandbox',]
-    });
-    const page = await browser.newPage();
-    
-    // Configurar el contenido HTML de la página
-    await page.setContent(htmlContent);
-    
-    // Generar el nombre de archivo
-    const fileName = "transacciones.pdf";
-    
-    // Generar el archivo PDF en memoria
-    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
-    
-    // Establecer los encabezados adecuados
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
-    
-    // Enviar el archivo PDF como respuesta
-    res.send(pdfBuffer);
-    
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
-  }
+    `
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox',
+                '--disable-setuid-sandbox',]
+        });
+        const page = await browser.newPage();
+
+        // Configurar el contenido HTML de la página
+        await page.setContent(htmlContent);
+
+        // Generar el nombre de archivo
+        const fileName = "transacciones.pdf";
+
+        // Generar el archivo PDF en memoria
+        const pdfBuffer = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+
+        // Establecer los encabezados adecuados
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Length', pdfBuffer.length);
+
+        // Enviar el archivo PDF como respuesta
+        res.send(pdfBuffer);
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
+    }
 }
 
 module.exports = { exportData, countRegister, getUsers, deleteUserByAdmin, getUsersAdmin, updateUser, getEmail, deleteUser, updatePassword, getNickname, updateNickname, updateEmail, getPermission, getUser, updateNamekoins, uploadAvatarImage, getNamekoins }

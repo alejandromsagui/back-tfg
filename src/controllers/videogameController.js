@@ -190,7 +190,7 @@ const deleteVideogameByAdmin = async(req, res) => {
       console.log('lo que devuelve idDB: ', idDB);
       if(id === idDB.id.toString()){
         console.log('Valor de id 2: ', id);
-        await Videogame.findByIdAndDelete(id)
+        await Videogame.findOneAndDelete({_id: id})
 
         return res.status(200).send({
           message: 'Videojuego eliminado'

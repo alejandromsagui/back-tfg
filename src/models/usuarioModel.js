@@ -57,16 +57,18 @@ const userSchema = new mongoose.Schema({
 });
 
 
-userSchema.pre('findOneAndDelete', async function(next){
+userSchema.pre('findOneAndDelete', async function(next) {
     const userId = this._conditions._id;
     console.log('User ID:', userId);
-    await videogameModel.deleteMany({userId: userId })
-    await ratingsModel.deleteMany({userId: userId})
-    await reportsModel.deleteMany({user: userId})
-    await notificationsModel.deleteMany({user: userId})
-    await rankingModel.deleteMany({userId: userId})
-    await rechargesModel.deleteMany({userId: userId})
-})
+    await videogameModel.deleteMany({ userId: userId });
+    await ratingsModel.deleteMany({ userId: userId });
+    await reportsModel.deleteMany({ user: userId });
+    await notificationsModel.deleteMany({ user: userId });
+    await rankingModel.deleteMany({ userId: userId });
+    await rechargesModel.deleteMany({ userId: userId });
+});
+
+
 const User = mongoose.model('Users', userSchema);
 
 module.exports = User;

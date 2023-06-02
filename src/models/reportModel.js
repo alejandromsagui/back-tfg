@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const videogameModel = require("../models/videogameModel")
+const ratingsModel = require("../models/ratingModel")
+const reportsModel = require("../models/reportModel")
+const notificationsModel = require("./notificationModel")
+const rechargesModel = require("../models/rechargeModel")
+const rankingModel = require("../models/rankingModel")
+const transactionsModel = require("../models/transactionModel")
 
 const reportSchema = new mongoose.Schema({
   user: {
@@ -29,6 +36,7 @@ const reportSchema = new mongoose.Schema({
   times: {type: Number, default: 0},
   show: { type: Boolean, default: true}
 });
+
 
 const Report = mongoose.model("Reports", reportSchema);
 
