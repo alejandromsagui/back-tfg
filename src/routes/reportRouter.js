@@ -11,6 +11,7 @@ reportRouter.put('/block/:nickname', verifyToken, isAdmin, reportController.bloc
 reportRouter.put('/reportGame/:id', verifyToken, reportController.reportGame)
 reportRouter.put('/unblock/:nickname', verifyToken, isAdmin, reportController.unblockUser)
 reportRouter.put('/changeReaded/:id', verifyToken, reportController.changeReaded)
+reportRouter.put('/editDetailsNotification/:id', verifyToken, reportController.editDetailsNotification)
 reportRouter.delete('/deleteNotification/:id', verifyToken, reportController.deleteNotification)
 
 module.exports = reportRouter;

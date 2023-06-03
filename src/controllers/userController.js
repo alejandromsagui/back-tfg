@@ -7,6 +7,8 @@ const path = require("path");
 const fs = require("fs");
 const downloadsFolder = require("downloads-folder");
 const axios = require("axios");
+const videogameModel = require("../models/videogameModel")
+const ratingsModel = require("../models/ratingModel")
 const { findById } = require("../models/videogameModel");
 require('dotenv').config({ path: '.env' });
 
@@ -152,6 +154,11 @@ const updateNickname = async (req, res) => {
 
         if (newNickname.length > 3) {
             await User.findOneAndUpdate({ nickname: username }, { nickname: newNickname }, { new: true });
+
+            await videogameModel.updateMany({ userId: user._id }, { $set: { nickname: newNickname } });
+
+            // // Actualizar el nombre de usuario en la tabla ratingsModel
+            // await ratingsModel.updateMany({ userId: user._id }, { $set: { nickname: newNickname } });
 
             const token = jwt.sign(
                 {

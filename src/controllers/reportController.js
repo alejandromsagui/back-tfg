@@ -23,6 +23,7 @@ const getReports = async (req, res) => {
         type: report.type,
         message: report.message,
         readed: report.readed,
+        details: report.details
       }));
 
       res.status(200).json({ getAllReports });
@@ -308,5 +309,33 @@ const changeReaded = async (req, res) => {
   }
 }
 
+const editDetailsNotification = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const newDetails = req.body.details;
 
-module.exports = { blockUser, changeReaded, deleteNotification, reportGame, getReports, newRecommendation, unblockUser, getVideogamesReported };
+    const notification = await notificationModel.findById(notificationId);
+
+    if (req.user.rol !== "Administrador") {
+      {
+        return res.status(400).send({ message: "Acción denegada" })
+      }
+    }
+
+    console.log('lo que devuelve notification: ', notification);
+    if (!notification) {
+      return res.status(400).send({ message: "Notificación no encontrada" });
+    }
+
+    notification.details = newDetails;
+    await notification.save();
+
+    return res.status(200).send({ message: "Detalles de notificación actualizados correctamente", newDetails });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Algo ha ido mal" });
+  }
+};
+
+
+module.exports = { blockUser, changeReaded, deleteNotification, reportGame, getReports, newRecommendation, unblockUser, getVideogamesReported, editDetailsNotification };

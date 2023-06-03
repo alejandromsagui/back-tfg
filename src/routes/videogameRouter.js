@@ -10,7 +10,7 @@ videogameRouter.post('/newVideogame', verifyToken, videogameController.newVideog
 videogameRouter.put('/updateVideogame/:id', verifyToken, videogameController.updateVideogame);
 videogameRouter.put('/updateState/:id', verifyToken, videogameController.updateState);
 videogameRouter.delete('/deleteVideogame/:id', verifyToken, videogameController.deleteVideogame);
-videogameRouter.delete('/deleteVideogameByName/:id', verifyToken, videogameController.deleteVideogameByName);
+videogameRouter.get('/getVideogameById/:id', verifyToken, videogameController.getVideogameById);
 videogameRouter.delete('/deleteVideogameByAdmin/:id', verifyToken, videogameController.deleteVideogameByAdmin)
 videogameRouter.post('/uploads', verifyToken, videogameController.uploadVideogameImage);
 

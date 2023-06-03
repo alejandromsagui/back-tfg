@@ -182,9 +182,6 @@ const deleteVideogameByAdmin = async(req, res) => {
     console.log('Valor de id: ', id);
 
     if(req.user.rol === 'Administrador'){
-      console.log('Estoy aqui');
-      console.log('Valor de id 2: ', id);
-
       const idDB = await Videogame.findById(id);
       
       console.log('lo que devuelve idDB: ', idDB);
@@ -289,9 +286,22 @@ const updateState = async (req, res) => {
 
 
 
-const deleteVideogameByName = async() => {
+const getVideogameById = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-}
+    const videogame = await Videogame.findById(id);
+
+    if (!videogame) {
+      return res.status(404).json({ message: 'Videojuego no encontrado' });
+    }
+
+    return res.status(200).json(videogame);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
 
 module.exports = {
   getVideogames,
@@ -301,6 +311,6 @@ module.exports = {
   uploadVideogameImage,
   getVideogamesByUser,
   updateState,
-  deleteVideogameByName,
+  getVideogameById,
   deleteVideogameByAdmin
 };
