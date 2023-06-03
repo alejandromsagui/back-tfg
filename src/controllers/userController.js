@@ -598,8 +598,7 @@ const exportData = async (req, res) => {
     `
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox',
-                '--disable-setuid-sandbox',]
+            args: ['--no-sandbox' ]
         });
         const page = await browser.newPage();
 
@@ -619,7 +618,7 @@ const exportData = async (req, res) => {
 
         // Enviar el archivo PDF como respuesta
         res.send(pdfBuffer);
-
+        await browser.close()
     } catch (error) {
         console.log(error);
         return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
