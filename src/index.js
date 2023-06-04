@@ -24,8 +24,6 @@ const exportData = require("./services/export-data")
 const http = require('http');
 const verifyToken = require ('./middlewares/validate-token')
 const server = http.createServer(app);
-const conversationRouter = require("./routes/conversationsRouter")
-const messageRouter = require("./routes/messagesRouter")
 const enforce = require('express-sslify');
 
 const io = require("socket.io")(server, {
@@ -71,30 +69,30 @@ app.use((req, res, next) => {
 });
 
 
-app.post('/uploadkk', async (file) => {
-    try {
-        const { originalname, buffer } = file
-        const blob = bucket.file('Videojuegos/' + originalname)
-        const blobStream = blob.createWriteStream({ resumable: false })
-        const publicUrl = await new Promise((resolve, reject) => {
-            blobStream
-                .on('finish', () => {
-                    const publicUrl = format(
-                        `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-                    )
-                    resolve(publicUrl)
-                })
-                .on('error', (error) => {
-                    reject(new Error(`Error al subir la imagen: ${error.message}`))
-                })
-                .end(buffer)
-        })
-        return publicUrl
-    } catch (error) {
-        console.error(error.message)
-        throw error
-    }
-})
+// app.post('/uploadkk', async (file) => {
+//     try {
+//         const { originalname, buffer } = file
+//         const blob = bucket.file('Videojuegos/' + originalname)
+//         const blobStream = blob.createWriteStream({ resumable: false })
+//         const publicUrl = await new Promise((resolve, reject) => {
+//             blobStream
+//                 .on('finish', () => {
+//                     const publicUrl = format(
+//                         `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+//                     )
+//                     resolve(publicUrl)
+//                 })
+//                 .on('error', (error) => {
+//                     reject(new Error(`Error al subir la imagen: ${error.message}`))
+//                 })
+//                 .end(buffer)
+//         })
+//         return publicUrl
+//     } catch (error) {
+//         console.error(error.message)
+//         throw error
+//     }
+// })
 
 // app.get('/export', verifyToken, (req, res) => {
 //     try {
@@ -117,8 +115,6 @@ app.use(transactionRouter);
 app.use(ratingRouter);
 app.use(reportRouter)
 app.use(rankingRouter)
-app.use(conversationRouter)
-app.use(messageRouter)
 
 // const countDocuments = async () => {
 //     const io = global.io; // Accede a la instancia de Socket.io globalmente

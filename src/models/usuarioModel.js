@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema({
         }],
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Por favor, proporciona un correo electrónico válido']
     },
+    image: {type: String, default: 'https://storage.googleapis.com/namekiansgames/Avatares/avatar4.jpg'},
     password: {
         type: String,
         required: [true, 'La contraseña es obligatoria']

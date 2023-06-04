@@ -144,22 +144,12 @@ const reportGame = async (req, res) => {
     });
 
     const userData = await userModel.findOne({ nickname: nickname });
-    console.log('Valor de userData: ', userData.nickname);
-    console.log('Valor de req.nickname: ', req.user.nickname);
-    console.log('Valor de userData._id: ', userData._id);
-    console.log('Valor de req.id: ', req.user.id);
 
-    console.log('Valor req.user.nickname: ', req.user.nickname);
-    console.log('Valor user data nickname: ', userData.nickname);
-    console.log('Valor req.user.id: ', req.user.id);
-    console.log('Valor userData id: ', userData.id);
-    if (userReports.length >= 1 && req.user.nickname === userData.nickname && req.user.id === userData._id.toString()) {
-
-
-      await userModel.updateOne({ nickname: nickname }, { blocked: true });
-
+    if (userReports.length >= 1 || req.user.id === userData._id.toString()) {
+      await userModel.updateOne({ _id: userData._id }, { blocked: true });
+    
       const message = `El usuario ${nickname} ha sido bloqueado por denunciar de manera frecuente`;
-
+    
       // if(req.user.rol === "Administrador"){
 
 
