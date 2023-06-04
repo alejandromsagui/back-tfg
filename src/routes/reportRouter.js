@@ -13,5 +13,6 @@ reportRouter.put('/unblock/:nickname', verifyToken, isAdmin, reportController.un
 reportRouter.put('/changeReaded/:id', verifyToken, reportController.changeReaded)
 reportRouter.put('/editDetailsNotification/:id', verifyToken, reportController.editDetailsNotification)
 reportRouter.delete('/deleteNotification/:id', verifyToken, reportController.deleteNotification)
+reportRouter.get('/exportReports', reportController.exportReports)
 
 module.exports = reportRouter;

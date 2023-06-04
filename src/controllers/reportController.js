@@ -2,7 +2,9 @@ const reportModel = require("../models/reportModel");
 const userModel = require("../models/usuarioModel");
 const videogameModel = require("../models/videogameModel");
 const notificationModel = require("../models/notificationModel");
+const puppeteer = require("puppeteer")
 const io = require("../index");
+const { default: axios } = require("axios");
 
 const getReports = async (req, res) => {
   try {
@@ -337,5 +339,147 @@ const editDetailsNotification = async (req, res) => {
   }
 };
 
+const exportReports = async (req, res) => {
+  try {
+    const fechaActual = new Date();
 
-module.exports = { blockUser, changeReaded, deleteNotification, reportGame, getReports, newRecommendation, unblockUser, getVideogamesReported, editDetailsNotification };
+    // Calcular la fecha de inicio del mes actual
+    const fechaInicioMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+
+    // Calcular la fecha de fin del mes actual
+    const fechaFinMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+    const transactionsData = await reportModel.find({
+      createdAt: { $gte: fechaInicioMes, $lte: fechaFinMes }
+    });
+
+    const reportedVideogames = {};
+
+    transactionsData.forEach(transaction => {
+      const videogame = transaction.nameVideogame;
+      const user = transaction.nickname;
+
+      if (!reportedVideogames[videogame]) {
+        reportedVideogames[videogame] = {};
+      }
+
+      if (!reportedVideogames[videogame][user]) {
+        reportedVideogames[videogame][user] = 0;
+      }
+
+      reportedVideogames[videogame][user]++;
+    });
+
+    let tableRows = '';
+    for (const videogame in reportedVideogames) {
+      for (const user in reportedVideogames[videogame]) {
+        const count = reportedVideogames[videogame][user];
+        const row = `
+          <tr>
+            <td style="text-align: center">${user}</td>
+            <td style="text-align: center">${videogame}</td>
+            <td style="text-align: center">${count}</td>
+          </tr>
+        `;
+        tableRows += row;
+      }
+    }
+
+
+
+    const htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Listado de reportes mensuales</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+  
+      h1 {
+        text-align: center;
+      }
+  
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+  
+      th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+  
+      th {
+        background-color: #C62828;
+        color: #fff !important;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div style="display: flex; align-items: center;">
+      <img src="https://storage.googleapis.com/namekiansgames/Logo/logo.png" alt="Logo" style="width: 15%; height: auto; vertical-align: sub; margin-right: 20px; display: inline-block;">
+      <h4 style="font-size: 18px; display: inline-block; margin-bottom: 15px !important; margin-left: 10px;">Gracias por comprar en Namekians<span style="color: #C62828;">Games</span></h4>
+    </div>
+  
+    <h1 style="text-align: center; margin-top: 20px;">Listado de reportes mensuales</h1>
+  
+    <table>
+  <thead>
+    <tr style="text-align: center">
+      <th style="text-align: center">Usuario</th>
+      <th style="text-align: center">Videojuego</th>
+      <th style="text-align: center">Número de reportes</th>
+    </tr>
+  </thead>
+  <tbody style="text-align: center !important;">
+    ${tableRows}
+  </tbody>
+</table>
+
+    <sub style="margin-top: 50px !important;">Atentamente, el equipo de Namekians<span style="color: #C62828;">Games</span></sub>
+  </body>
+  </html>
+`
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox']
+    });
+    const page = await browser.newPage();
+
+    // Configurar el contenido HTML de la página
+    await page.setContent(htmlContent);
+
+    // Generar el nombre de archivo
+    const fileName = "reportes.pdf";
+
+    // Generar el archivo PDF en memoria
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+
+    // Establecer los encabezados adecuados
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="reportes.pdf"');
+    res.setHeader('Content-Length', pdfBuffer.length);
+
+    // Enviar el archivo PDF como respuesta
+    res.send(pdfBuffer);
+    await browser.close()
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Ha ocurrido un error al exportar los datos" });
+  }
+}
+
+
+
+
+
+
+
+module.exports = { blockUser, exportReports, changeReaded, deleteNotification, reportGame, getReports, newRecommendation, unblockUser, getVideogamesReported, editDetailsNotification };

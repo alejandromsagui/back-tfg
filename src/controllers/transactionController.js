@@ -99,23 +99,35 @@ const newTransaction = async (req, res) => {
   };
   
 
-const getTransactionById = async (req, res) => {
+  const getTransactionById = async (req, res) => {
     const nickname = req.params.nickname;
-
+  
     try {
-
-        const transactions = await transactionModel.find({
-            $or: [
-                { nicknameBuyer: nickname },
-                { nicknameSeller: nickname }
-            ]
-        });
-
-        res.json(transactions);
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1; // El método getMonth devuelve valores de 0 a 11, por eso se suma 1 para obtener el número del mes actual
+      const currentYear = currentDate.getFullYear();
+      const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1); // Primer día del mes actual
+      const firstDayOfNextMonth = new Date(currentYear, currentMonth, 1); // Primer día del mes siguiente
+  
+      const transactions = await transactionModel.find({
+        $or: [
+          { nicknameBuyer: nickname },
+          { nicknameSeller: nickname }
+        ],
+        createdAt: {
+          $gte: firstDayOfMonth,
+          $lt: firstDayOfNextMonth
+        }
+      });
+  
+      res.json(transactions);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al obtener las transacciones');
+      console.error(error);
+      res.status(500).send("Error al obtener las transacciones");
     }
-}
+  };
+  
+  
+  
 
 module.exports = { transactions, newTransaction, getTransactionById }

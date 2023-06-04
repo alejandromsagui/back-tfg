@@ -24,6 +24,8 @@ const exportData = require("./services/export-data")
 const http = require('http');
 const verifyToken = require ('./middlewares/validate-token')
 const server = http.createServer(app);
+const conversationRouter = require("./routes/conversationsRouter")
+const messageRouter = require("./routes/messagesRouter")
 const enforce = require('express-sslify');
 
 const io = require("socket.io")(server, {
@@ -115,6 +117,8 @@ app.use(transactionRouter);
 app.use(ratingRouter);
 app.use(reportRouter)
 app.use(rankingRouter)
+app.use(conversationRouter)
+app.use(messageRouter)
 
 // const countDocuments = async () => {
 //     const io = global.io; // Accede a la instancia de Socket.io globalmente

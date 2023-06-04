@@ -46,28 +46,28 @@ const getUsersAdmin = async (req, res) => {
 
 const countRegister = async (req, res) => {
     try {
-      // Obtener la fecha actual
-      const fechaActual = new Date();
-    
-      // Calcular la fecha de inicio del mes actual
-      const fechaInicioMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
-    
-      // Calcular la fecha de fin del mes actual
-      const fechaFinMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
-        
-      console.log('Fecha inicio mes: ', fechaInicioMes);
-      console.log('Fecha inicio mes: ', fechaFinMes);
-      // Realizar la consulta para contar los registros en el rango de fechas
-      const numRegistros = await User.countDocuments({
-        createdAt: { $gte: fechaInicioMes, $lte: fechaFinMes }
-      });
-    
-      return res.status(200).send({ numRegistros });
+        // Obtener la fecha actual
+        const fechaActual = new Date();
+
+        // Calcular la fecha de inicio del mes actual
+        const fechaInicioMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+
+        // Calcular la fecha de fin del mes actual
+        const fechaFinMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+        console.log('Fecha inicio mes: ', fechaInicioMes);
+        console.log('Fecha inicio mes: ', fechaFinMes);
+        // Realizar la consulta para contar los registros en el rango de fechas
+        const numRegistros = await User.countDocuments({
+            createdAt: { $gte: fechaInicioMes, $lte: fechaFinMes }
+        });
+
+        return res.status(200).send({ numRegistros });
     } catch (error) {
-      return res.status(500).send({ error: 'Error al calcular el número de registros del mes' });
+        return res.status(500).send({ error: 'Error al calcular el número de registros del mes' });
     }
-  };
-  
+};
+
 
 const updateUser = async (req, res) => {
     try {
@@ -178,7 +178,7 @@ const updateNickname = async (req, res) => {
                 .header('Authorization', token)
                 .send({
                     message: 'El nombre de usuario se ha actualizado correctamente',
-                    data: {token}
+                    data: { token }
                 });
         } else {
             return res.status(400).send({ message: "El nombre de usuario debe ser superior a 3 caracteres" })
@@ -245,11 +245,11 @@ const updateEmail = async (req, res) => {
         );
 
         return res.status(200)
-        .header('Authorization', token)
-        .send({
-            message: 'El correo electrónico se ha actualizado correctamente',
-            data: {token}
-        });
+            .header('Authorization', token)
+            .send({
+                message: 'El correo electrónico se ha actualizado correctamente',
+                data: { token }
+            });
     } catch (err) {
         console.log(err);
         return res.status(500).json({
@@ -283,15 +283,15 @@ const updatePassword = async (req, res) => {
         if (oldPassword === newPassword) return res.status(400).json({ message: 'La contraseña nueva no puede coincidir con la antigua' })
 
 
-        if(newPassword.length > 5){
+        if (newPassword.length > 5) {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             const update = { password: hashedPassword };
             await User.findOneAndUpdate({ nickname: username }, update, { new: true });
 
-            
-        return res.status(200).json({
-            message: 'La contraseña se ha actualizado correctamente'
-        });
+
+            return res.status(200).json({
+                message: 'La contraseña se ha actualizado correctamente'
+            });
         } else {
             return res.status(400).json({
                 message: 'La nueva contraseña tiene que ser superior a 5 caracteres'
@@ -421,24 +421,26 @@ const getEmail = async (req, res) => {
 const getUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = await User.findOne({ id: id })
+        const user = await User.findOne({ _id: id });
 
         if (!user) {
             return res.status(404).send({
                 message: 'Algo ha ido mal'
-            })
+            });
         }
 
         return res.status(200).send({
-            user: user.id
-        })
+            id: user.id,
+            username: user.nickname
+        });
 
     } catch (error) {
         return res.status(500).json({
             message: 'Algo ha ido mal'
         });
     }
-}
+};
+
 
 const updateNamekoins = async (req, res) => {
     try {
@@ -519,7 +521,20 @@ const deleteUserByAdmin = async (req, res) => {
 
 const exportData = async (req, res) => {
     try {
-        const transactions = await axios.get(`${process.env.HOST}/findTransaction/${req.user.nickname}`)
+        const fechaActual = new Date();
+
+        // Calcular la fecha de inicio del mes actual
+        const fechaInicioMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+
+        // Calcular la fecha de fin del mes actual
+        const fechaFinMes = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
+
+        const transactions = await axios.get(`${process.env.HOST}/findTransaction/${req.user.nickname}`, {
+            params: {
+                fechaInicio: fechaInicioMes,
+                fechaFin: fechaFinMes
+            }
+        });
 
         const transactionsData = transactions.data;
 
@@ -527,15 +542,16 @@ const exportData = async (req, res) => {
         for (let i = 0; i < transactionsData.length; i++) {
             const transaction = transactionsData[i];
             const row = `
-            <tr>
-              <td>${transaction.videogame}</td>
-              <td>${transaction.nicknameBuyer === req.user.nickname ? 'Compra' : 'Venta'}</td>
-              <td>${transaction.price / 10}€</td>
-              <td>${transaction.date}</td>
-            </tr>
-          `;
+    <tr>
+      <td style="text-align: center">${transaction.videogame}</td>
+      <td style="text-align: center">${transaction.nicknameBuyer === req.user.nickname ? 'Compra' : 'Venta'}</td>
+      <td style="text-align: center">${transaction.price / 10}€</td>
+      <td style="text-align: center">${transaction.date}</td>
+    </tr>
+  `;
             tableRows += row;
         }
+
         const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -582,10 +598,10 @@ const exportData = async (req, res) => {
         <table>
           <thead>
             <tr>
-              <th>Videojuego</th>
-              <th>Tipo de operación</th>
-              <th>Precio</th>
-              <th>Fecha</th>
+              <th style="text-align: center">Videojuego</th>
+              <th style="text-align: center">Tipo de operación</th>
+              <th style="text-align: center">Precio</th>
+              <th style="text-align: center">Fecha</th>
             </tr>
           </thead>
           <tbody>
@@ -598,7 +614,7 @@ const exportData = async (req, res) => {
     `
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox' ]
+            args: ['--no-sandbox']
         });
         const page = await browser.newPage();
 
