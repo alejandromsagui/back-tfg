@@ -489,35 +489,46 @@ const uploadAvatarImage = async (req, res, next) => {
 
 const deleteUserByAdmin = async (req, res) => {
     try {
-        const id = req.params.id;
-
-        const user = await User.findById(id);
-
-        if (req.user.rol !== 'Administrador') {
-            return res.status(400).send({
-                message: 'Acción no autorizada'
-            })
-        }
-
-        if (!user) {
-            return res.status(400).send({
-                message: 'Algo ha ido mal'
-            })
-        }
-
-        await User.findOneAndDelete({ _id: user.id });
-
-        return res.status(200).send({
-            message: 'El usuario se ha eliminado correctamente'
-        })
-
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            message: 'Algo ha ido mal'
+      const id = req.params.id;
+  
+      const user = await User.findById(id);
+  
+      if (req.user.rol !== 'Administrador') {
+        return res.status(400).send({
+          message: 'Acción no autorizada'
         });
+      }
+  
+      if (!user) {
+        return res.status(400).send({
+          message: 'Algo ha ido mal'
+        });
+      }
+  
+      // Obtener los videojuegos del usuario
+      const userVideogames = await videogameModel.find({ owner: user._id });
+  
+      // Eliminar los videojuegos del usuario
+      for (const videogame of userVideogames) {
+        await videogameModel.findByIdAndDelete(videogame._id);
+      }
+  
+      // Eliminar el usuario
+      await User.findOneAndDelete({ _id: user._id });
+  
+      return res.status(200).send({
+        message: 'El usuario se ha eliminado correctamente'
+      });
+  
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: 'Algo ha ido mal'
+      });
     }
-}
+  };
+  
+  
 
 const exportData = async (req, res) => {
     try {

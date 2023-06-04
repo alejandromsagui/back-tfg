@@ -69,41 +69,6 @@ app.use((req, res, next) => {
 });
 
 
-// app.post('/uploadkk', async (file) => {
-//     try {
-//         const { originalname, buffer } = file
-//         const blob = bucket.file('Videojuegos/' + originalname)
-//         const blobStream = blob.createWriteStream({ resumable: false })
-//         const publicUrl = await new Promise((resolve, reject) => {
-//             blobStream
-//                 .on('finish', () => {
-//                     const publicUrl = format(
-//                         `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-//                     )
-//                     resolve(publicUrl)
-//                 })
-//                 .on('error', (error) => {
-//                     reject(new Error(`Error al subir la imagen: ${error.message}`))
-//                 })
-//                 .end(buffer)
-//         })
-//         return publicUrl
-//     } catch (error) {
-//         console.error(error.message)
-//         throw error
-//     }
-// })
-
-// app.get('/export', verifyToken, (req, res) => {
-//     try {
-//         exportData();
-//         res.status(200).send('La exportación de datos se ha realizado correctamente.');
-//     } catch (error) {
-//         res.status(500).send({ message: "Ha ocurrido un error al exportar los datos"})
-//     }
-
-//   });
-
 app.set('io', io)
 
 //Rutas
@@ -116,16 +81,6 @@ app.use(ratingRouter);
 app.use(reportRouter)
 app.use(rankingRouter)
 
-// const countDocuments = async () => {
-//     const io = global.io; // Accede a la instancia de Socket.io globalmente
-//     try {
-//       const count = await userModel.countDocuments({});
-//       io.emit('documentCount', count);
-//       setInterval(countDocuments, count)
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
 
 io.on('connection', (socket) => {
     console.log('Un usuario se ha conectado');
